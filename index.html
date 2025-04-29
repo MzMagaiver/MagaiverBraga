@@ -165,7 +165,8 @@
             box-shadow: 0 0 30px rgba(255, 77, 0, 0.8);
             transform: translateY(-5px);
         }
-        .nav-card::before {
+        /* Removendo o efeito de linha de escaneamento */
+        /* .nav-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -174,7 +175,7 @@
             height: 2px;
             background: linear-gradient(90deg, transparent, #ff4d00, transparent);
             animation: scan 3s infinite;
-        }
+        } */
         .nav-text {
             position: relative;
             z-index: 1;
@@ -612,6 +613,7 @@
                 height: auto;
                 min-height: 100px;
                 width: 100%;
+                transform: none !important; /* Desativa efeito tilt em dispositivos móveis */
             }
             .grid-cols-3 {
                 grid-template-columns: 1fr;
@@ -680,6 +682,17 @@
                 width: 30px;
                 height: 30px;
                 font-size: 1.2rem;
+            }
+            
+            /* Desativa animações que podem causar problemas */
+            .nav-card::before, .cyber-card::before {
+                display: none !important; /* Remove completamente o efeito de scan */
+                animation: none !important;
+            }
+            
+            /* Desativa animações em geral para melhorar desempenho */
+            .pulse, .glow, .glitch, .scan {
+                animation: none !important;
             }
             
             /* Novos estilos para corrigir problemas de layout */
@@ -758,6 +771,11 @@
             #dev-character-img {
                 width: 70px; /* Adjusted size for Dev on smaller screens */
                 height: 70px; /* Adjusted size for Dev on smaller screens */
+            }
+            
+            /* Desativa completamente efeitos de animação */
+            .pulse, .glow, .glitch, .scan {
+                animation: none !important;
             }
         }
     </style>
