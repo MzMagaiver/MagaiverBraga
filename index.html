@@ -1,0 +1,1501 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfólio de Magaiver Braga Santana, especialista em DevOps, automação e integração de TI com negócios">
+    <title>Magaiver Braga Santana - Cyber Portfólio</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono&display=swap');
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: #0d0d1a;
+            color: #e0e0ff;
+            overflow-x: hidden;
+            position: relative;
+            margin: 0;
+        }
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0d0d1a, #1a1a33);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .star-loader {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff4d00, #004aad);
+            animation: pulse-star 1.5s infinite;
+            position: relative;
+        }
+        .star-loader::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border: 2px solid #ff4d00;
+            border-radius: 50%;
+            animation: orbit 2s infinite;
+            opacity: 0.5;
+        }
+        .star-loader::after {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: -40px;
+            right: -40px;
+            bottom: -40px;
+            border: 2px solid #004aad;
+            border-radius: 50%;
+            animation: orbit 3s infinite reverse;
+            opacity: 0.3;
+        }
+        @keyframes pulse-star {
+            0% { transform: scale(1); box-shadow: 0 0 20px #ff4d00; }
+            50% { transform: scale(1.2); box-shadow: 0 0 40px #004aad; }
+            100% { transform: scale(1); box-shadow: 0 0 20px #ff4d00; }
+        }
+        @keyframes orbit {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .neon-text {
+            background: linear-gradient(45deg, #ff4d00, #004aad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 77, 0, 0.8);
+            animation: glow 2s infinite;
+        }
+        @keyframes glow {
+            0% { text-shadow: 0 0 10px rgba(255, 77, 0, 0.8); }
+            50% { text-shadow: 0 0 20px rgba(255, 77, 0, 1); }
+            100% { text-shadow: 0 0 10px rgba(255, 77, 0, 0.8); }
+        }
+        .nav-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(10, 10, 30, 0.9), rgba(20, 20, 40, 0.7));
+            border: 2px solid #ff4d00;
+            border-radius: 8px;
+            /* Removed overflow: hidden; */
+            transition: all 0.3s ease;
+            /* Removed text-align: center; */
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(255, 77, 0, 0.3);
+            cursor: pointer;
+            display: flex; /* Added for Flexbox */
+            flex-direction: column; /* Stack icon and text vertically */
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+        }
+        .nav-card:hover {
+            background: linear-gradient(135deg, #004aad, #ff4d00);
+            border-color: #b0b0b0;
+            box-shadow: 0 0 30px rgba(255, 77, 0, 0.8);
+            transform: translateY(-5px);
+        }
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff4d00, transparent);
+            animation: scan 3s infinite;
+        }
+        .nav-text {
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+        .nav-card:hover .nav-text {
+            color: #e0e0ff;
+            animation: glitch 0.3s ease infinite;
+        }
+        .content-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            margin-top: 2rem;
+        }
+        .content-section.active {
+            display: block;
+            opacity: 1;
+        }
+        .cyber-card {
+            background: rgba(20, 20, 40, 0.85);
+            border: 2px solid #ff4d00;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .cyber-card:hover {
+            box-shadow: 0 0 40px rgba(255, 77, 0, 0.6);
+            transform: scale(1.02);
+        }
+        .cyber-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 77, 0, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .cyber-card:hover::before {
+            left: 100%;
+        }
+        /* Removed .cyber-card.expanded styles as content will open in modal */
+        .card-content {
+            display: none; /* Content is now in the modal */
+        }
+        .single-card {
+            max-width: 32rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .connection-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        @keyframes scan {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -2px); }
+            60% { transform: translate(-2px, 0); }
+            80% { transform: translate(2px, 2px); }
+            100% { transform: translate(0); }
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .nav-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIxeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwIDEwTDE1IDVNNCAxNUwxNSA1IiBzdHJva2U9IiNmZjRkMDAiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4=') no-repeat;
+            opacity: 0.5;
+        }
+        .nav-card:hover::after {
+            opacity: 1;
+        }
+        .title-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        .icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 0.5rem;
+        }
+        .home-button {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .home-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Estilo Corrigido para o Nome */
+        #home-button {
+            position: relative;
+            display: block;
+            background: linear-gradient(45deg, #ff4d00, #004aad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 77, 0, 0.5);
+            transition: all 0.3s ease;
+            padding: 0 10px;
+            margin-left: auto;
+            margin-right: auto;
+            width: fit-content;
+        }
+        #home-button:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 20px rgba(255, 77, 0, 0.8);
+            animation: glitch 0.5s linear infinite;
+        }
+        #home-button::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid #ff4d00;
+            border-radius: 10px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #home-button:hover::before {
+            opacity: 0.5;
+            animation: pulse-border 1.5s infinite;
+        }
+        @keyframes pulse-border {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        /* Estilos do Jogo Consolidados */
+        #code-answer {
+            background: #1a1a33 !important;
+            color: #e0e0ff !important;
+            font-family: 'Roboto Mono', monospace;
+        }
+        #code-snippet {
+            background: #1a1a33;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: #e0e0ff;
+            font-family: 'Roboto Mono', monospace;
+        }
+        .projectile {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #ff4d00, #ff0000);
+            border-radius: 50%;
+            right: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: fly 2s linear;
+            box-shadow: 0 0 10px #ff4d00;
+            z-index: 10;
+        }
+        @keyframes fly {
+            0% {
+                right: 80px;
+                transform: translateY(-50%) scale(0.2);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                right: calc(100% - 80px);
+                transform: translateY(-50%) scale(1);
+                opacity: 0;
+            }
+        }
+        /* Remove float animation from enemy character div */
+        /* #enemy-character {
+            animation: float 2s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        } */
+        /* Remove transition and hit/defend animations from player character div */
+        /* #player-character {
+            transition: transform 0.3s ease;
+        }
+        #player-character.hit {
+            animation: shake 0.5s ease-in-out;
+        }
+        #player-character.defend {
+            animation: defend 0.3s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        @keyframes defend {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        } */
+
+        /* New styles for GIF characters */
+        .game-character-img {
+            position: absolute;
+            width: 80px; /* Set a fixed size */
+            height: 80px; /* Set a fixed size */
+            object-fit: contain; /* Ensures the entire GIF is visible */
+            z-index: 5; /* Ensure they are above the background */
+        }
+
+        #dev-character-img {
+            bottom: 10px; /* Position above the bottom */
+            left: 10px; /* Position from the left */
+            width: 100px; /* Increased size for Dev */
+            height: 100px; /* Increased size for Dev */
+        }
+
+        #bug-character-img {
+            bottom: 10px; /* Position above the bottom */
+            right: 10px; /* Position from the right */
+            animation: float 2s infinite ease-in-out; /* Keep float animation for the bug */
+        }
+         @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Add hit/defend animations to the DEV image */
+        #dev-character-img.hit {
+            animation: shake 0.5s ease-in-out;
+        }
+        #dev-character-img.defend {
+            animation: defend 0.3s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        @keyframes defend {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+
+        /* Modal Base Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 20, 40, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: #0d0d1a;
+            border: 2px solid #ff4d00;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 700px; /* Increased max-width for expanded info */
+            width: 90%;
+            text-align: left; /* Align text left for better readability */
+            box-shadow: 0 0 40px rgba(255, 77, 0, 0.6);
+            position: relative; /* Needed for close button positioning */
+            max-height: 90%; /* Added max-height */
+            overflow-y: auto; /* Added scroll for long content */
+        }
+        .modal-content h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff4d00;
+            margin-bottom: 1rem;
+            text-align: center; /* Center modal titles */
+        }
+        .modal-content p {
+            color: #e0e0ff;
+            margin-bottom: 1rem;
+            line-height: 1.6; /* Improved line spacing for readability */
+        }
+        .modal-content ul {
+             color: #e0e0ff; /* Ensure list items inherit color */
+             margin-bottom: 1rem;
+             padding-left: 1.5rem; /* Add padding for list markers */
+        }
+         .modal-content ul li {
+            margin-bottom: 0.5rem; /* Spacing for list items */
+            line-height: 1.5; /* Improved line spacing for list items */
+         }
+         .modal-content h4 { /* Added style for potential sub-headings */
+             font-family: 'Orbitron', sans-serif;
+             color: #b0b0b0;
+             margin-top: 1.5rem;
+             margin-bottom: 0.8rem;
+             font-size: 1.1rem;
+             border-bottom: 1px solid rgba(255, 77, 0, 0.3);
+             padding-bottom: 0.4rem;
+         }
+
+
+        /* Custom Close Button Styles */
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #ff4d00, #ff0000);
+            color: #e0e0ff;
+            border: none;
+            border-radius: 50%; /* Circular button */
+            width: 40px; /* Button size */
+            height: 40px; /* Button size */
+            font-size: 1.5rem; /* 'X' size */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 77, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+        }
+        .close-button:hover {
+            background: linear-gradient(45deg, #004aad, #0000ff);
+            transform: rotate(90deg) scale(1.1); /* Rotate and scale on hover */
+            box-shadow: 0 0 20px rgba(0, 77, 255, 0.8);
+        }
+         .close-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 50%, rgba(255, 255, 255, 0.1) 50%);
+            background-size: 200% 200%;
+            transition: background-position 0.5s ease;
+         }
+        .close-button:hover::before {
+            background-position: 100% 100%;
+        }
+
+
+        /* Estilos do Menu de Dificuldade */
+        #difficulty-menu {
+            display: none;
+            margin-top: 1rem;
+            background: rgba(20, 20, 40, 0.9);
+            border: 2px solid #ff4d00;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .difficulty-btn {
+            background: linear-gradient(45deg, #ff4d00, #004aad);
+            color: #e0e0ff;
+            text-shadow: 0 0 10px rgba(255, 77, 0, 0.8);
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .difficulty-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 77, 0, 0.8);
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .nav-card {
+                padding: 1rem;
+            }
+            .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            .grid-cols-5 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .single-card {
+                max-width: 100%;
+                margin: 0 1rem;
+            }
+            .text-5xl {
+                font-size: 2rem;
+            }
+            h1.text-5xl {
+                font-size: 2.5rem;
+            }
+            .nav-card .nav-text {
+                font-size: 0.875rem;
+            }
+            .icon {
+                width: 30px;
+                height: 30px;
+            }
+            .cyber-card {
+                padding: 1rem;
+            }
+            .cyber-card h3 {
+                font-size: 1.25rem;
+            }
+            .cyber-card p {
+                font-size: 0.875rem;
+            }
+            #game-container .flex {
+                flex-direction: column;
+                align-items: center;
+            }
+            #game-container .flex > div {
+                text-align: center !important;
+                margin-bottom: 0.5rem;
+            }
+            /* Adjusted size for character images on smaller screens */
+            .game-character-img {
+                width: 60px;
+                height: 60px;
+            }
+             #dev-character-img {
+                width: 80px; /* Adjusted size for Dev on smaller screens */
+                height: 80px; /* Adjusted size for Dev on smaller screens */
+            }
+            #code-challenge {
+                padding: 0.8rem;
+            }
+            #code-challenge input, #code-challenge button {
+                font-size: 0.875rem;
+            }
+            .modal-content {
+                padding: 1rem;
+            }
+             .close-button {
+                width: 30px;
+                height: 30px;
+                font-size: 1.2rem;
+             }
+        }
+        @media (max-width: 480px) {
+            .grid-cols-5 {
+                grid-template-columns: 1fr;
+            }
+            h1.text-5xl {
+                font-size: 2rem;
+            }
+             /* Adjusted size for character images on smaller screens */
+            .game-character-img {
+                width: 50px;
+                height: 50px;
+            }
+             #dev-character-img {
+                width: 70px; /* Adjusted size for Dev on smaller screens */
+                height: 70px; /* Adjusted size for Dev on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="star-loader"></div>
+    </div>
+    <canvas id="particles"></canvas>
+    <canvas class="title-particles"></canvas>
+
+    <header class="py-8 relative">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold neon-text font-orbitron mb-8 home-button" id="home-button">Magaiver Braga Santana</h1>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-3xl mx-auto">
+                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="about">
+                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Sobre</span>
+                </div>
+                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="experience">
+                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                        <path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/>
+                    </svg>
+                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Experiência</span>
+                </div>
+                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="projects">
+                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                        <path d="M12 2l10 6.5v7L12 22 2 15.5v-7L12 2zm0 2.3L4 9.5v5l8 5.2 8-5.2v-5L12 4.3z"/>
+                    </svg>
+                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Projetos</span>
+                </div>
+                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="skills">
+                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Habilidades</span>
+                </div>
+                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="contact">
+                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 2l-8 5-8-5h16zM4 18V8l8 5 8-5v10H4z"/>
+                    </svg>
+                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Contato</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-16">
+        <div class="max-w-7xl mx-auto px-4 relative">
+            <canvas class="connection-canvas"></canvas>
+            <section id="home" class="content-section active">
+                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Bem-vindo ao Meu Universo</h2>
+                <div class="grid grid-cols-1">
+                    <div class="cyber-card fade-in single-card" data-node="game" style="cursor: default;">
+                        <h3 class="text-xl font-semibold text-[#ff4d00]">Jogo do Dev: Defenda-se dos Erros!</h3>
+                        <div class="card-content" style="display: block; opacity: 1; transform: none;">
+                            <div id="game-container" class="text-center">
+                                <div id="game-start" class="mb-4">
+                                    <p class="mb-4">Defenda-se dos erros de sintaxe lançados pelo mago maligno!</p>
+                                    <div class="flex justify-center gap-4">
+                                        <button id="start-game" class="bg-[#ff4d00] text-white px-6 py-2 rounded-full hover:bg-[#004aad] transition">
+                                            Jogar
+                                        </button>
+                                        <button id="how-to-play" class="bg-[#004aad] text-white px-6 py-2 rounded-full hover:bg-[#ff4d00] transition">
+                                            Como Jogar
+                                        </button>
+                                    </div>
+                                    <div id="difficulty-menu">
+                                        <p class="text-lg mb-2">Escolha a Dificuldade:</p>
+                                        <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
+                                        <button class="difficulty-btn" data-difficulty="medium">Médio</button>
+                                        <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
+                                    </div>
+                                </div>
+                                <div id="game-screen" class="hidden">
+                                    <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                                        <div id="player" class="text-center md:text-left mb-2 md:mb-0">
+                                            <div class="text-lg font-semibold">Você</div>
+                                            <div>Vidas: <span id="lives">3</span></div>
+                                        </div>
+                                        <div id="score-board" class="text-center mb-2 md:mb-0">
+                                            <div class="text-lg font-semibold">Pontuação</div>
+                                            <div><span id="score">0</span> pts</div>
+                                        </div>
+                                        <div id="enemy" class="text-center md:text-right">
+                                            <div class="text-lg font-semibold">Mago do Bug</div>
+                                            <div>Nível: <span id="level">1</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="relative h-64 bg-[#0d0d1a] border-2 border-[#ff4d00] rounded-lg overflow-hidden">
+                                        <img id="dev-character-img" class="game-character-img" src="bLHOO.gif" alt="Personagem Dev">
+                                        <img id="bug-character-img" class="game-character-img" src="bLHyS.gif" alt="Personagem Bug">
+
+                                        <div id="projectiles-container" class="absolute inset-0"></div>
+                                    </div>
+                                    <div id="code-challenge" class="mt-4 p-4 bg-[#1a1a33] rounded-lg text-left">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <div>Corrija o erro:</div>
+                                            <div>Tempo: <span id="timer" class="text-[#ff4d00]">30</span>s</div>
+                                        </div>
+                                        <div id="code-snippet" class="font-mono mb-2 p-2 bg-[#0d0d1a] rounded"></div>
+                                        <input type="text" id="code-answer" class="w-full bg-[#0d0d1a] border border-[#ff4d00] rounded px-3 py-2 text-white focus:outline-none focus:border-[#004aad]" placeholder="Digite a correção...">
+                                        <button id="submit-answer" class="mt-2 bg-[#ff4d00] text-white px-4 py-1 rounded hover:bg-[#004aad] transition">
+                                            Enviar
+                                        </button>
+                                     <button id="back-to-menu" class="mt-4 bg-[#004aad] text-white px-6 py-2 rounded-full hover:bg-[#ff4d00] transition">
+                                        Voltar ao Menu
+                                    </button>
+                                    </div>
+                                </div>
+                                <div id="game-over" class="mt-4 text-center hidden">
+                                    <div class="text-xl font-semibold mb-2">Game Over!</div>
+                                    <div class="mb-4">Sua pontuação: <span id="final-score">0</span></div>
+                                    <button id="restart-game" class="bg-[#ff4d00] text-white px-6 py-2 rounded-full hover:bg-[#004aad] transition">
+                                        Jogar Novamente
+                                    </button>
+                                    <button id="back-to-menu-gameover" class="mt-4 bg-[#004aad] text-white px-6 py-2 rounded-full hover:bg-[#ff4d00] transition">
+                                        Voltar ao Menu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="about" class="content-section">
+                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Sobre Mim</h2>
+                <div class="grid grid-cols-1">
+                    <div class="cyber-card fade-in single-card" data-node="about" data-modal-target="about-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Perfil Profissional</h3>
+                        </div>
+                        <div class="card-content">
+                             <p>Sempre fui fascinado por tecnologia. Desde cedo eu sempre tive uma curiosidade natural por entender como as coisas funcionam. Mesmo quando trabalhei em áreas onde a tecnologia não era a prioridade, ela sempre esteve presente de alguma forma no meu dia a dia. Esses ambientes, muitas vezes carentes de soluções digitais, me deram a chance de me destacar. Sempre foi comum que eu aprendesse rapidamente a lidar com sistemas, relatórios, softwares e conectividades em geral. Acabava me tornando referência entre os colegas, assumindo o papel de multiplicador de conhecimento e em muitos casos, me tornava um usuário-chave.</p>
+                             <p>Apesar desse interesse e vocação, minha formação inicial seguiu outro rumo. Quando conheci o setor da construção civil, me encantei e comecei a cursar Engenharia Civil. Os estudos iam bem, assim como o trabalho, mas algo não encaixava; pois, eu não me sentia realmente conectado à engenharia. Curiosamente, as pessoas ao meu redor pareciam perceber isso antes de mim. familiares, colegas e até os meus gestores diziam que eu estava no setor errado. Provavelmente porque, mesmo em um canteiro de obras, minha cabeça estava sempre era voltada a encontrar soluções digitais, a pensar diferente, a conectar ideias, criar soluções tecnológicas.</p>
+                             <p>Em janeiro de 2025, decidi ouvir esse instinto e mudei de área. Hoje o meu foco é ser a ponte entre a tecnologia da informação e as necessidades do negócio. Meu objetivo vai além de programar, na minha humilde opinião já temos códigos por todos os lados, inclusive gerados por inteligência artificial. O que eu quero entregar é a minha curiosidade como motor de inovação: buscar novas formas de resolver problemas, automatizar a resolução de problemas e melhorar a experiência das pessoas com a tecnologia.</p>
+                             <p>Acredito que minha bagagem em outros setores me dá uma visão prática, mais centrada na experiência usuário. Sou criativo, inquieto e inconformado quando o assunto é tecnologia. E acima de tudo, sigo sendo um entusiasta curioso. Vamos juntos nessa? O que você pode me ensinar? Estou pronto para aprender.</p>
+                            <a href="seu-cv.pdf" download class="mt-4 inline-block bg-transparent border-2 border-[#ff4d00] text-[#ff4d00] px-6 py-2 rounded-full hover:bg-[#ff4d00] hover:text-[#e0e0ff] transition pulse">Baixar CV</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="experience" class="content-section">
+                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Experiência Profissional</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="cyber-card fade-in" data-node="exp-cimcop-keyuser" data-modal-target="exp-cimcop-keyuser-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M12 2a10 10 0 0 0-10 10c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.12-1.47-1.12-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.5 2.28 1.07 2.84.82.09-.64.35-1.07.63-1.32-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.56 9.56 0 0 1 12 6.8c.85 0 1.71.11 2.51.33 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.56.71.56 1.44v2.14c0 .27.16.58.67.5A10 10 0 0 0 22 12a10 10 0 0 0-10-10z"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">CIMCOP - Key User</h3>
+                        </div>
+                         <div class="card-content">
+                            <p class="text-gray-400">CIMCOP Engenharia | Jul 2023 - Atual</p>
+                            <p>Atuei na Cimcop Engenharia como Assistente Administrativo, sendo responsável pelo controle financeiro e pela administração de obras de pequeno porte. Minhas atribuições envolvem a gestão do caixa da obra, controle e lançamento de despesas, aprovação de processos e acompanhamento de pagamentos a fornecedores e subempreiteiros. Também sou responsável pelo custo local, controle de hospedagem e alimentação, garantindo o suporte necessário às frentes de serviço.</p>
+                            <p>Além disso, dou apoio administrativo ao setor de Suprimentos e ao gerente de contratos da obra. Coordeno o almoxarifado de pequeno porte, atendendo às demandas das frentes e direcionando-as à matriz quando necessário. Também realizo pequenas compras locais e emergenciais, participo do controle de medições de equipamentos e partes diárias, e sou responsável pelo lançamento do RDO (Relatório Diário de Obra).</p>
+                            <p>No início da minha trajetória na Cimcop, atuei como Auxiliar de Almoxarifado, o que me proporcionou vivência direta com os processos de suprimentos e compras. Nessa função, apoiei a equipe de compras e assumi atividades durante ausências dos compradores. Também atuei como auditor interno em auditorias de suprimentos, com foco na identificação e correção de não conformidades relacionadas ao estoque.</p>
+                            <p>De forma integrada, minhas atividades abrangem os setores de compras, administração, suprimentos, medições, controle de baixas, gestão do caixa e fluxo de caixa. Ofereço suporte administrativo às áreas operacionais, assistência à gerência e à equipe da central, além de colaborar com o setor jurídico na elaboração de contratos, cadastro e avaliação de fornecedores.</p>
+                        </div>
+                    </div>
+                    <div class="cyber-card fade-in" data-node="exp-cimcop-auditor" data-modal-target="exp-cimcop-auditor-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">CIMCOP - Auditor</h3>
+                        </div>
+                         <div class="card-content">
+                            <p class="text-gray-400">CIMCOP Engenharia | Jan 2023</p>
+                            <p>Meu primeiro contato com a Cimcop foi como prestador de serviço. Atuei inicialmente como consultor, realizando visitas a fornecedores com o objetivo de fortalecer a imagem da empresa e transmitir nossa visão sobre parcerias sustentáveis, sempre em alinhamento com as práticas de compliance.</p>
+                            <p>Após essa etapa, dei início a um trabalho de auditoria de estoque, voltado à implementação de melhorias práticas e à correção de não conformidades. Nesse mesmo período, também fui efetivado como colaborador no cargo de Auxiliar de Almoxarifado e comecei a me aprofundar nas áreas de Suprimentos, Almoxarifado, Estoque e Compras.</p>
+                        </div>
+                    </div>
+                    <div class="cyber-card fade-in" data-node="exp-polly" data-modal-target="exp-polly-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Mercado Livre (Polly Service)</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-gray-400">Mercado Livre | Jan 2022 - Abr 2023</p>
+                            <p>Atuei como Líder de Turno na operação do Mercado Livre em Contagem, prestando serviço como terceirizado. Minha principal responsabilidade era supervisionar o desempenho da equipe, assegurando o cumprimento das metas definidas pelo cliente.</p>
+                            <p>Além da gestão de equipe, eu também era responsável pelo fornecimento e controle de EPIs, bem como por promover a organização do ambiente de trabalho com base na metodologia 5S.</p>
+                        </div>
+                    </div>
+                    <div class="cyber-card fade-in" data-node="exp-localiza" data-modal-target="exp-localiza-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Localiza Hertz</h3>
+                        </div>
+                         <div class="card-content">
+                            <p class="text-gray-400">Jan 2017 - Set 2019</p>
+                            <p>Na Localiza, atuei no processamento de despesas, avaliando os processos conforme os critérios definidos e conduzindo tratativas relacionadas a ocorrências e sinistros, em constante interface com o setor de orçamentos.</p>
+                            <p>Também desempenhei o papel de usuário-chave, com foco em práticas de TI. Fui um usuário ativo em processos alinhados ao modelo DevOps, aplicando conhecimentos tanto técnicos quanto de negócio. Participei da criação de processos sistêmicos voltados ao setor e colaborei em iniciativas de melhoria contínua, contribuindo para a evolução dos fluxos operacionais da empresa.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="projects" class="content-section">
+                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Projetos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="cyber-card fade-in" data-node="proj-fornecedores" data-modal-target="proj-fornecedores-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2m8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm8 10v-2a4 4 0 0 0-3-3.87m-4-8a3 3 0 1 1 6 0 3 3 0 0 1-6 0z"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Portal de Fornecedores</h3>
+                        </div>
+                         <div class="card-content">
+                            <p class="text-gray-400">CIMCOP Engenharia</p>
+                            <p>Fui o idealizador e principal articulador do projeto do Portal de Fornecedores da empresa. A iniciativa começou de forma experimental, com foco em desenvolver uma solução utilizando os recursos disponíveis no pacote Microsoft 365.</p>
+                            <p>Após uma análise mais aprofundada do potencial do projeto, ele foi redirecionado para uma implementação em maior escala. A proposta evoluiu e passou a ser desenvolvida como uma consultoria externa, assumida pela equipe da 90Compor T.I, que atualmente está conduzindo a integração do portal com o sistema ERP da empresa.</p>
+                            <a href="#" target="_blank" class="text-[#ff4d00] hover:text-[#004aad] transition">Ver Projeto (Link Pendente)</a>
+                        </div>
+                    </div>
+                    <div class="cyber-card fade-in" data-node="proj-ms365" data-modal-target="proj-ms365-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M12 2v6h8m-8-6a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm-2 14v-4H4"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Automação com Microsoft 365</h3>
+                        </div>
+                         <div class="card-content">
+                            <p class="text-gray-400">CIMCOP Engenharia</p>
+                            <p>Fui responsável por implementar diversas integrações de processos utilizando as ferramentas do pacote Microsoft 365, eliminando a dependência de e-mails e migrando fluxos para soluções como Forms, Power Automate, Lists, Planner e Teams.</p>
+                            <p>Criei dashboards e alertas automatizados, otimizando a gestão de informações. Nas obras, introduzi o uso do Microsoft Forms como metodologia padrão, substituindo o uso de formulários em papel A4. A coleta de dados passou a ser feita diretamente por celular ou computador, com os registros integrados automaticamente a planilhas do Excel, facilitando o acompanhamento e a análise em tempo real.</p>
+                            <a href="#" target="_blank" class="text-[#ff4d00] hover:text-[#004aad] transition">Ver Projeto (Link Pendente)</a>
+                        </div>
+                    </div>
+                    <div class="cyber-card fade-in" data-node="proj-spoc" data-modal-target="proj-spoc-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M5 12h14M12 5v14"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Sistema SPOC</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-gray-400">Localiza Hertz</p>
+                            <p>Na Localiza, atuei diretamente na criação do sistema SPOC dentro da diretoria de operações. Participei como usuário-chave, contribuindo ativamente para a definição de funcionalidades, testes da plataforma e estruturação do layout.</p>
+                            <p>Após o desenvolvimento inicial, tornei-me multiplicador do sistema e ponto de contato com a equipe da DTI Digital, atuando como elo entre os usuários finais e os desenvolvedores para garantir a aderência do sistema às necessidades operacionais.</p>
+                            <a href="#" target="_blank" class="text-[#ff4d00] hover:text-[#004aad] transition">Ver Projeto (Link Pendente)</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="skills" class="content-section">
+                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Habilidades Técnicas</h2>
+                <div class="grid grid-cols-1">
+                    <div class="cyber-card fade-in single-card" data-node="skills" data-modal-target="skills-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Habilidades Técnicas</h3>
+                        </div>
+                        <div class="card-content" style="display: block; opacity: 1; transform: none;">
+                             <div class="flex flex-wrap gap-2 justify-center">
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">DevOps</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Microsoft 365</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Gestor-90</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">SAP</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Relatórios BI</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">GOBR</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Auditoria de Processos</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Auditoria Financeira</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Auditoria de Estoque</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Python (Iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Power BI (Intermediario)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">JavaScript (Iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Scrum (Iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Kanban (Iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">HTML (inciantes)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">CSS (iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Git (inciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">GitHub (iniciante)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="contact" class="content-section">
+                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Contato</h2>
+                <div class="grid grid-cols-1">
+                    <div class="cyber-card fade-in single-card" data-node="contact" data-modal-target="contact-modal">
+                        <div class="flex items-center">
+                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
+                                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 2l-8 5-8-5h16zM4 18V8l8 5 8-5v10H4z"/>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Entre em Contato</h3>
+                        </div>
+                        <div class="card-content" style="display: block; opacity: 1; transform: none;">
+                            <p class="text-lg">Pronto para construir o futuro juntos? Entre em contato!</p>
+                            <p class="mt-2">Email: <a href="E-mail: magaiverbragasantana@gmail.com" class="text-[#ff4d00] hover:text-[#004aad]"><span class="__cf_email__" data-cfemail="1a777b7d7b736c7f6878687b7d7b697b746e7b747b5a7d777b737634797577">magaiverbragasantana@gmail.com</span></a></p>
+                            <p>Telefone: <a href="tel:" class="text-[#ff4d00] hover:text-[#004aad]"></a></p>
+                            <p>LinkedIn: <a href="https://www.linkedin.com/in/magaiver-santana-b21b6b169/" target="_blank" class="text-[#ff4d00] hover:text-[#004aad]">LinkedIn Profile</a></p>
+                            <p>GitHub: <a href="https://github.com/MagaiverBraga" target="_blank" class="text-[#ff4d00] hover:text-[#004aad]">GitHub Profile</a></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="py-4 text-center text-gray-400">
+        <p>© 2025 Magaiver Braga Santana. Código é poder.</p>
+    </footer>
+
+    <div id="info-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-button">&times;</button>
+            <div id="modal-body">
+                </div>
+        </div>
+    </div>
+
+    <div id="instructions-modal" class="modal">
+        <div class="modal-content">
+             <button class="close-button">&times;</button>
+            <h3>Jogo do Dev: Como Jogar</h3>
+            <p>Você é um desenvolvedor enfrentando o temido Mago do Bug! Ele lança erros de sintaxe contra você, e sua missão é corrigir o código antes que o tempo acabe.</p>
+            <h4>Instruções:</h4>
+            <ul class="text-left">
+                <li>Escolha um nível de dificuldade (Fácil, Médio ou Difícil).</li>
+                <li>Um trecho de código com erro será exibido.</li>
+                <li>Digite a correção no campo fornecido e pressione "Enviar" ou Enter.</li>
+                <li>Corrija o erro dentro do tempo limite para ganhar pontos!</li>
+                <li>Cada erro não corrigido custa uma vida. Perca todas as vidas e o jogo termina.</li>
+            </ul>
+            <h4>Exemplos de Respostas:</h4>
+            <ul class="text-left list-disc list-inside">
+                <li>Para o código `console.log("Hello World"`, a resposta correta pode ser `;` ou `);`.</li>
+                <li>Para o código `let array = [1, 2, 3`, a resposta correta pode ser `]` ou `];`.</li>
+                <li>Para o código `if (x = 5)`, a resposta correta pode ser `===` ou `==`.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.7.2/dist/vanilla-tilt.min.js"></script>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Inicialização Geral ---
+    const loadingScreen = document.getElementById('loading-screen');
+    const infoModal = document.getElementById('info-modal');
+    const modalBody = document.getElementById('modal-body');
+    const closeModalButtons = document.querySelectorAll('.close-button');
+
+
+    // Função para esconder a tela de carregamento
+    function hideLoadingScreen() {
+        if (loadingScreen) {
+            loadingScreen.classList.add('hidden');
+        }
+    }
+
+    // Timeout de fallback para garantir que a tela de carregamento desapareça
+    setTimeout(hideLoadingScreen, 5000); // Esconde após 5 segundos, mesmo que o 'load' não seja disparado
+
+    // Evento de carregamento com tratamento de erro
+    try {
+        window.addEventListener('load', () => {
+            hideLoadingScreen();
+        });
+
+        // Verifica falhas no carregamento de scripts externos
+        const scripts = document.querySelectorAll('script[src]');
+        scripts.forEach(script => {
+            script.addEventListener('error', () => {
+                console.warn(`Erro ao carregar script: ${script.src}`);
+                hideLoadingScreen(); // Esconde a tela de carregamento em caso de erro
+            });
+        });
+
+        // --- Efeito Tilt nos cards de navegação ---
+        const tiltElements = document.querySelectorAll('.tilt');
+        if (typeof VanillaTilt !== 'undefined') {
+            VanillaTilt.init(tiltElements, {
+                max: 15,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.3
+            });
+        } else {
+            console.warn("VanillaTilt não carregado.");
+        }
+
+        // --- Navegação entre seções ---
+        const navCards = document.querySelectorAll('.nav-card');
+        const contentSections = document.querySelectorAll('.content-section');
+        const homeButton = document.getElementById('home-button');
+
+        function showSection(sectionId) {
+             // Reset game state when leaving the home/game section
+            if (getCurrentSectionId() === 'home' && sectionId !== 'home') {
+                 resetGame();
+            }
+
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+            });
+            const activeSection = document.getElementById(sectionId);
+            if (activeSection) {
+                activeSection.classList.add('active');
+                const cards = activeSection.querySelectorAll('.fade-in');
+                cards.forEach((card, index) => {
+                    setTimeout(() => card.classList.add('visible'), index * 100);
+                });
+            }
+        }
+
+        function getCurrentSectionId() {
+            const activeSection = document.querySelector('.content-section.active');
+            return activeSection ? activeSection.id : null;
+        }
+
+
+        navCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const sectionId = card.getAttribute('data-section');
+                showSection(sectionId);
+            });
+        });
+
+        if (homeButton) {
+            homeButton.addEventListener('click', () => {
+                showSection('home');
+            });
+        }
+
+        // --- Abrir Modal com Conteúdo do Cyber Card ---
+        const cyberCards = document.querySelectorAll('.cyber-card:not([data-node="game"])');
+        cyberCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const cardTitle = card.querySelector('h3').outerHTML;
+                const cardContent = card.querySelector('.card-content').innerHTML;
+
+                if (modalBody) {
+                    modalBody.innerHTML = cardTitle + cardContent;
+                }
+                if (infoModal) {
+                    infoModal.classList.add('active');
+                }
+            });
+        });
+
+        // --- Fechar Modais ---
+        closeModalButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (infoModal) infoModal.classList.remove('active');
+                const instructionsModal = document.getElementById('instructions-modal');
+                if (instructionsModal) instructionsModal.classList.remove('active');
+            });
+        });
+
+         // Close modal when clicking outside the modal content
+        if (infoModal) {
+             infoModal.addEventListener('click', (e) => {
+                if (e.target === infoModal) {
+                     infoModal.classList.remove('active');
+                }
+             });
+        }
+         const instructionsModal = document.getElementById('instructions-modal');
+         if (instructionsModal) {
+             instructionsModal.addEventListener('click', (e) => {
+                if (e.target === instructionsModal) {
+                     instructionsModal.classList.remove('active');
+                }
+             });
+         }
+
+
+        // --- Lógica do Jogo ---
+        const gameState = {
+            lives: 3,
+            score: 0,
+            level: 1,
+            isPlaying: false,
+            timeLeft: 30,
+            timerInterval: null,
+            currentSnippet: null,
+            difficulty: 'medium',
+            codeSnippets: {
+                easy: [
+                    { wrong: 'console.log("Hello World"', correct: [';', ');'], hint: 'Falta o ponto e vírgula ou parêntese?' },
+                    { wrong: 'let array = [1, 2, 3', correct: [']', '];'], hint: 'Como finalizar um array?' },
+                    { wrong: 'function greet() {', correct: ['}'], hint: 'Como se fecha um bloco de função?' }
+                ],
+                medium: [
+                    { wrong: 'if (x = 5)', correct: ['===', '=='], hint: 'Comparação ou atribuição?' },
+                    { wrong: 'const name = "Dev";', correct: ['let name = "Dev";', 'var name = "Dev";'], hint: 'Pode ser redeclarada? Qual a forma correta?' }, // Updated correct answer
+                    { wrong: '<button onclick="myFunc>"', correct: ['myFunc()"', 'myFunc();"'], hint: 'Falta algo na chamada da função?' }
+                ],
+                hard: [
+                    { wrong: 'document.getElementById(myElement)', correct: ['"myElement"', "'myElement'"], hint: 'IDs são strings?' },
+                    { wrong: 'async function fetchData() {', correct: ['await', 'return await'], hint: 'Falta algo para chamadas assíncronas?' },
+                    { wrong: 'const obj = { name: "Dev" ', correct: ['}'], hint: 'Como fechar um objeto?' }
+                ]
+            }
+        };
+
+        // Elementos do DOM do Jogo
+        const gameElements = {
+            startBtn: document.getElementById('start-game'),
+            howToPlayBtn: document.getElementById('how-to-play'),
+            instructionsModal: document.getElementById('instructions-modal'),
+            closeInstructions: instructionsModal ? instructionsModal.querySelector('.close-button') : null, // Use the close button within the modal
+            difficultyMenu: document.getElementById('difficulty-menu'),
+            difficultyButtons: document.querySelectorAll('.difficulty-btn'),
+            gameScreen: document.getElementById('game-screen'),
+            gameStart: document.getElementById('game-start'),
+            gameOver: document.getElementById('game-over'),
+            restartGame: document.getElementById('restart-game'),
+            lives: document.getElementById('lives'),
+            score: document.getElementById('score'),
+            level: document.getElementById('level'),
+            timer: document.getElementById('timer'),
+            codeSnippet: document.getElementById('code-snippet'),
+            codeAnswer: document.getElementById('code-answer'),
+            submitAnswer: document.getElementById('submit-answer'),
+            projectilesContainer: document.getElementById('projectiles-container'),
+            // Updated character elements to use the image tags
+            playerCharacter: document.getElementById('dev-character-img'),
+            enemyCharacter: document.getElementById('bug-character-img'),
+            finalScore: document.getElementById('final-score'),
+            backToMenuBtn: document.getElementById('back-to-menu'), // New Back to Menu button
+            backToMenuGameoverBtn: document.getElementById('back-to-menu-gameover') // New Back to Menu button from Game Over
+        };
+
+        function createProjectile() {
+            if (!gameElements.projectilesContainer) return;
+
+            const projectile = document.createElement('div');
+            projectile.className = 'projectile';
+            gameElements.projectilesContainer.appendChild(projectile);
+
+            // Apply hit animation to the DEV image
+            if (gameElements.playerCharacter) {
+                gameElements.playerCharacter.classList.add('hit');
+                setTimeout(() => {
+                    if (gameElements.playerCharacter) gameElements.playerCharacter.classList.remove('hit');
+                }, 500);
+            }
+
+            projectile.addEventListener('animationend', () => {
+                projectile.remove();
+            });
+        }
+
+        function startTimer() {
+            gameState.timeLeft = gameState.difficulty === 'easy' ? 45 : gameState.difficulty === 'medium' ? 30 : 20;
+            updateTimerDisplay();
+
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                updateTimerDisplay();
+
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    handleIncorrectAnswer(true);
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            if (gameElements.timer) {
+                gameElements.timer.textContent = gameState.timeLeft;
+            }
+        }
+
+        function handleCorrectAnswer() {
+            gameState.score += (gameState.difficulty === 'easy' ? 30 : gameState.difficulty === 'medium' ? 50 : 80) + (10 * gameState.level);
+            if (gameState.score > 0 && gameState.score % (150 + 30 * (gameState.level - 1)) === 0) {
+                gameState.level++;
+            }
+
+             // Apply defend animation to the DEV image
+            if (gameElements.playerCharacter) {
+                gameElements.playerCharacter.classList.add('defend');
+                setTimeout(() => {
+                    if (gameElements.playerCharacter) gameElements.playerCharacter.classList.remove('defend');
+                }, 300);
+            }
+
+            updateGameUI();
+            showNewSnippet();
+        }
+
+        function handleIncorrectAnswer(isTimeout = false) {
+            createProjectile();
+            gameState.lives--;
+            updateGameUI();
+
+            if (gameState.lives <= 0) {
+                endGame();
+            } else if (isTimeout) {
+                showNewSnippet();
+            }
+        }
+
+        function checkAnswer() {
+            if (!gameState.isPlaying || !gameState.currentSnippet) return;
+
+            const userAnswer = gameElements.codeAnswer.value.trim();
+            const correctOptions = gameState.currentSnippet.correct;
+
+            const isCorrect = correctOptions.some(option => userAnswer === option);
+
+            if (isCorrect) {
+                handleCorrectAnswer();
+            } else {
+                handleIncorrectAnswer();
+            }
+            if (gameElements.codeAnswer) gameElements.codeAnswer.value = '';
+        }
+
+        function showNewSnippet() {
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+
+            const snippets = gameState.codeSnippets[gameState.difficulty];
+            let randomIndex;
+            let attempts = 0;
+            do {
+                randomIndex = Math.floor(Math.random() * snippets.length);
+                attempts++;
+            } while (snippets[randomIndex] === gameState.currentSnippet && snippets.length > 1 && attempts < 10);
+
+            gameState.currentSnippet = snippets[randomIndex];
+
+            if (gameElements.codeSnippet) gameElements.codeSnippet.textContent = gameState.currentSnippet.wrong;
+            if (gameElements.codeAnswer) {
+                gameElements.codeAnswer.value = '';
+                gameElements.codeAnswer.placeholder = gameState.currentSnippet.hint || 'Digite a correção...';
+            }
+
+            startTimer();
+        }
+
+        function updateGameUI() {
+            if (gameElements.lives) gameElements.lives.textContent = gameState.lives;
+            if (gameElements.score) gameElements.score.textContent = gameState.score;
+            if (gameElements.level) gameElements.level.textContent = gameState.level;
+        }
+
+        function startGame() {
+            gameState.lives = gameState.difficulty === 'easy' ? 5 : gameState.difficulty === 'medium' ? 3 : 2;
+            gameState.score = 0;
+            gameState.level = 1;
+            gameState.isPlaying = true;
+            gameState.currentSnippet = null;
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+
+            updateGameUI();
+
+            if (gameElements.gameStart) gameElements.gameStart.classList.add('hidden');
+            if (gameElements.gameOver) gameElements.gameOver.classList.add('hidden');
+            if (gameElements.gameScreen) gameElements.gameScreen.classList.remove('hidden');
+            if (gameElements.difficultyMenu) gameElements.difficultyMenu.style.display = 'none';
+
+            // Show character images when game starts
+            if (gameElements.playerCharacter) gameElements.playerCharacter.style.display = 'block';
+            if (gameElements.enemyCharacter) gameElements.enemyCharacter.style.display = 'block';
+
+
+            showNewSnippet();
+
+            if (gameElements.codeAnswer) gameElements.codeAnswer.focus();
+        }
+
+        function endGame() {
+            gameState.isPlaying = false;
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+
+            if (gameElements.gameScreen) gameElements.gameScreen.classList.add('hidden');
+            if (gameElements.gameOver) gameElements.gameOver.classList.add('hidden');
+            if (gameElements.finalScore) gameElements.finalScore.textContent = gameState.score;
+
+            // Hide character images when game ends
+            if (gameElements.playerCharacter) gameElements.playerCharacter.style.display = 'none';
+            if (gameElements.enemyCharacter) gameElements.enemyCharacter.style.display = 'none';
+        }
+
+         function resetGame() {
+            gameState.isPlaying = false;
+            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+            gameState.lives = 3; // Reset lives to default
+            gameState.score = 0; // Reset score
+            gameState.level = 1; // Reset level
+            gameState.currentSnippet = null; // Clear current snippet
+            gameState.timeLeft = 30; // Reset timer
+            gameState.difficulty = 'medium'; // Reset difficulty
+
+            if (gameElements.gameScreen) gameElements.gameScreen.classList.add('hidden');
+            if (gameElements.gameOver) gameElements.gameOver.classList.add('hidden');
+            if (gameElements.gameStart) gameElements.gameStart.classList.remove('hidden');
+             if (gameElements.difficultyMenu) gameElements.difficultyMenu.style.display = 'none'; // Hide difficulty menu on reset
+
+            // Hide character images when returning to menu
+            if (gameElements.playerCharacter) gameElements.playerCharacter.style.display = 'none';
+            if (gameElements.enemyCharacter) gameElements.enemyCharacter.style.display = 'none';
+
+
+            updateGameUI(); // Update UI to reflect reset state
+         }
+
+
+        // --- Event Listeners do Jogo ---
+        if (gameElements.startBtn) {
+            gameElements.startBtn.addEventListener('click', () => {
+                if (gameElements.difficultyMenu) gameElements.difficultyMenu.style.display = 'block';
+            });
+        }
+        if (gameElements.howToPlayBtn) {
+            gameElements.howToPlayBtn.addEventListener('click', () => {
+                const instructionsModal = document.getElementById('instructions-modal');
+                if (instructionsModal) instructionsModal.classList.add('active');
+            });
+        }
+        // Close instructions modal is handled by the general close button listener
+
+        gameElements.difficultyButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                gameState.difficulty = btn.getAttribute('data-difficulty');
+                startGame();
+            });
+        });
+        if (gameElements.submitAnswer) {
+            gameElements.submitAnswer.addEventListener('click', checkAnswer);
+        }
+        if (gameElements.restartGame) {
+            gameElements.restartGame.addEventListener('click', () => {
+                if (gameElements.difficultyMenu) gameElements.difficultyMenu.style.display = 'block';
+                if (gameElements.gameOver) gameElements.gameOver.classList.add('hidden');
+            });
+        }
+        if (gameElements.codeAnswer) {
+            gameElements.codeAnswer.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+        }
+         if (gameElements.backToMenuBtn) {
+             gameElements.backToMenuBtn.addEventListener('click', resetGame);
+         }
+         if (gameElements.backToMenuGameoverBtn) {
+             gameElements.backToMenuGameoverBtn.addEventListener('click', resetGame);
+         }
+
+
+        // --- Efeito de Partículas ---
+        const particlesCanvas = document.getElementById('particles');
+        if (typeof THREE !== 'undefined' && particlesCanvas) {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: particlesCanvas, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            const particleCount = 5000;
+            const particles = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i++) {
+                positions[i] = (Math.random() - 0.5) * 10;
+            }
+            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                color: 0xff4d00,
+                size: 0.02,
+                transparent: true,
+                opacity: 0.6
+            });
+            const particleSystem = new THREE.Points(particles, particleMaterial);
+            scene.add(particleSystem);
+
+            camera.position.z = 5;
+
+            function animateParticles() {
+                requestAnimationFrame(animateParticles);
+                particleSystem.rotation.y += 0.0005;
+                const time = Date.now() * 0.0001;
+                camera.position.y = Math.sin(time * 0.5) * 0.1;
+
+                renderer.render(scene, camera);
+            }
+            animateParticles();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        } else {
+            console.warn("Three.js não carregado ou canvas #particles não encontrado.");
+        }
+
+        // Inicializa a primeira seção visível (Home)
+        showSection('home');
+
+    } catch (error) {
+        console.error("Erro na inicialização do site:", error);
+        hideLoadingScreen(); // Garante que a tela de carregamento seja escondida mesmo em caso de erro
+    }
+}); // Fim do DOMContentLoaded
+    </script>
+</body>
+</html>
