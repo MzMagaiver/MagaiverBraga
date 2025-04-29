@@ -56,10 +56,6 @@
             position: relative;
             margin: 0;
         }
-        /* New style to prevent body scroll when modal is active */
-        body.modal-open {
-            overflow: hidden;
-        }
         #particles {
             position: fixed;
             top: 0;
@@ -480,9 +476,6 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
-             /* Ensure modal content is centered even if it doesn't take full height */
-             align-items: flex-start;
-             overflow-y: auto; /* Allow scrolling for the modal overlay itself if needed (less common) */
         }
         .modal.active {
             opacity: 1;
@@ -500,8 +493,6 @@
             position: relative; /* Needed for close button positioning */
             max-height: 90%; /* Added max-height */
             overflow-y: auto; /* Added scroll for long content */
-            margin: 2rem auto; /* Add margin top/bottom and auto for left/right to center */
-            flex-shrink: 0; /* Prevent shrinking */
         }
         .modal-content h3 {
             font-family: 'Orbitron', sans-serif;
@@ -664,7 +655,6 @@
             }
             .modal-content {
                 padding: 1rem;
-                 margin: 1rem auto; /* Adjust modal margin on smaller screens */
             }
              .close-button {
                 width: 30px;
@@ -1045,7 +1035,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const infoModal = document.getElementById('info-modal');
     const modalBody = document.getElementById('modal-body');
     const closeModalButtons = document.querySelectorAll('.close-button');
-    const body = document.body; // Get the body element
 
 
     // Função para esconder a tela de carregamento
@@ -1141,7 +1130,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (infoModal) {
                     infoModal.classList.add('active');
-                    body.classList.add('modal-open'); // Add class to body
                 }
             });
         });
@@ -1149,15 +1137,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Fechar Modais ---
         closeModalButtons.forEach(button => {
             button.addEventListener('click', () => {
-                if (infoModal) {
-                    infoModal.classList.remove('active');
-                    body.classList.remove('modal-open'); // Remove class from body
-                }
+                if (infoModal) infoModal.classList.remove('active');
                 const instructionsModal = document.getElementById('instructions-modal');
-                if (instructionsModal) {
-                    instructionsModal.classList.remove('active');
-                    body.classList.remove('modal-open'); // Remove class from body
-                }
+                if (instructionsModal) instructionsModal.classList.remove('active');
             });
         });
 
@@ -1166,7 +1148,6 @@ document.addEventListener('DOMContentLoaded', () => {
              infoModal.addEventListener('click', (e) => {
                 if (e.target === infoModal) {
                      infoModal.classList.remove('active');
-                     body.classList.remove('modal-open'); // Remove class from body
                 }
              });
         }
@@ -1175,7 +1156,6 @@ document.addEventListener('DOMContentLoaded', () => {
              instructionsModal.addEventListener('click', (e) => {
                 if (e.target === instructionsModal) {
                      instructionsModal.classList.remove('active');
-                     body.classList.remove('modal-open'); // Remove class from body
                 }
              });
          }
@@ -1426,10 +1406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameElements.howToPlayBtn) {
             gameElements.howToPlayBtn.addEventListener('click', () => {
                 const instructionsModal = document.getElementById('instructions-modal');
-                if (instructionsModal) {
-                    instructionsModal.classList.add('active');
-                    body.classList.add('modal-open'); // Add class to body
-                }
+                if (instructionsModal) instructionsModal.classList.add('active');
             });
         }
         // Close instructions modal is handled by the general close button listener
