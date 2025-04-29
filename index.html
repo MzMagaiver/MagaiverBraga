@@ -56,6 +56,13 @@
             position: relative;
             margin: 0;
         }
+        /* Novo estilo para prevenir scroll do body quando modal estiver ativo */
+        body.modal-open {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
         #particles {
             position: fixed;
             top: 0;
@@ -476,6 +483,9 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
+             /* Ensure modal content is centered even if it doesn't take full height */
+             align-items: flex-start;
+             overflow-y: auto; /* Allow scrolling for the modal overlay itself if needed (less common) */
         }
         .modal.active {
             opacity: 1;
@@ -493,6 +503,8 @@
             position: relative; /* Needed for close button positioning */
             max-height: 90%; /* Added max-height */
             overflow-y: auto; /* Added scroll for long content */
+            margin: 2rem auto; /* Add margin top/bottom and auto for left/right to center */
+            flex-shrink: 0; /* Prevent shrinking */
         }
         .modal-content h3 {
             font-family: 'Orbitron', sans-serif;
@@ -597,16 +609,22 @@
         @media (max-width: 768px) {
             .nav-card {
                 padding: 1rem;
+                height: auto;
+                min-height: 100px;
+                width: 100%;
             }
             .grid-cols-3 {
                 grid-template-columns: 1fr;
+                gap: 1rem;
             }
             .grid-cols-5 {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.75rem;
             }
             .single-card {
                 max-width: 100%;
-                margin: 0 1rem;
+                margin: 0 0.5rem;
+                padding: 1rem;
             }
             .text-5xl {
                 font-size: 2rem;
@@ -623,6 +641,7 @@
             }
             .cyber-card {
                 padding: 1rem;
+                margin-bottom: 1rem;
             }
             .cyber-card h3 {
                 font-size: 1.25rem;
@@ -655,26 +674,88 @@
             }
             .modal-content {
                 padding: 1rem;
+                margin: 1rem auto; /* Adjust modal margin on smaller screens */
             }
-             .close-button {
+            .close-button {
                 width: 30px;
                 height: 30px;
                 font-size: 1.2rem;
-             }
+            }
+            
+            /* Novos estilos para corrigir problemas de layout */
+            .content-section {
+                padding: 0 0.5rem;
+                margin-top: 1rem;
+                overflow-x: hidden;
+            }
+            
+            .skill-chip {
+                margin-bottom: 0.5rem;
+            }
+            
+            .flex-wrap {
+                justify-content: center;
+            }
+            
+            /* Corrigir modal em dispositivos móveis */
+            .modal-content {
+                width: 95%;
+                max-height: 80vh;
+                padding: 1rem;
+            }
+            
+            /* Melhorar espaçamento vertical */
+            section {
+                margin-bottom: 2rem;
+            }
+            
+            /* Melhorar navegação em dispositivos móveis */
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: rgba(13, 13, 26, 0.95);
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
+            
+            /* Ajustar espaçamento do conteúdo principal para compensar o header fixo */
+            main {
+                padding-top: 1rem;
+            }
         }
+        
+        /* Media query adicional para telas muito pequenas */
         @media (max-width: 480px) {
             .grid-cols-5 {
                 grid-template-columns: 1fr;
             }
+            
+            .nav-card {
+                min-height: 80px;
+            }
+            
             h1.text-5xl {
                 font-size: 2rem;
             }
-             /* Adjusted size for character images on smaller screens */
+            
+            .modal-content {
+                padding: 0.75rem;
+            }
+            
+            .close-button {
+                top: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+            }
+            
+            /* Adjusted size for character images on smaller screens */
             .game-character-img {
                 width: 50px;
                 height: 50px;
             }
-             #dev-character-img {
+            #dev-character-img {
                 width: 70px; /* Adjusted size for Dev on smaller screens */
                 height: 70px; /* Adjusted size for Dev on smaller screens */
             }
@@ -944,24 +1025,24 @@
                         </div>
                         <div class="card-content" style="display: block; opacity: 1; transform: none;">
                              <div class="flex flex-wrap gap-2 justify-center">
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">DevOps</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Microsoft 365</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Gestor-90</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">SAP</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Relatórios BI</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">GOBR</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Auditoria de Processos</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Auditoria Financeira</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Auditoria de Estoque</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Python (Iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Power BI (Intermediario)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">JavaScript (Iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Scrum (Iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Kanban (Iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">HTML (inciantes)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">CSS (iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">Git (inciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">GitHub (iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">DevOps</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Microsoft 365</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Gestor-90</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">SAP</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Relatórios BI</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">GOBR</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Auditoria de Processos</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Auditoria Financeira</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Auditoria de Estoque</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Python (Iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Power BI (Intermediario)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">JavaScript (Iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Scrum (Iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Kanban (Iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">HTML (inciantes)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">CSS (iniciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Git (inciante)</span>
+                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">GitHub (iniciante)</span>
                             </div>
                         </div>
                     </div>
@@ -1035,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const infoModal = document.getElementById('info-modal');
     const modalBody = document.getElementById('modal-body');
     const closeModalButtons = document.querySelectorAll('.close-button');
+    const body = document.body; // Get the body element
 
 
     // Função para esconder a tela de carregamento
@@ -1130,6 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (infoModal) {
                     infoModal.classList.add('active');
+                    body.classList.add('modal-open'); // Add class to body
                 }
             });
         });
@@ -1137,9 +1220,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Fechar Modais ---
         closeModalButtons.forEach(button => {
             button.addEventListener('click', () => {
-                if (infoModal) infoModal.classList.remove('active');
+                if (infoModal) {
+                    infoModal.classList.remove('active');
+                    body.classList.remove('modal-open'); // Remove class from body
+                }
                 const instructionsModal = document.getElementById('instructions-modal');
-                if (instructionsModal) instructionsModal.classList.remove('active');
+                if (instructionsModal) {
+                    instructionsModal.classList.remove('active');
+                    body.classList.remove('modal-open'); // Remove class from body
+                }
             });
         });
 
@@ -1148,6 +1237,7 @@ document.addEventListener('DOMContentLoaded', () => {
              infoModal.addEventListener('click', (e) => {
                 if (e.target === infoModal) {
                      infoModal.classList.remove('active');
+                     body.classList.remove('modal-open'); // Remove class from body
                 }
              });
         }
@@ -1156,6 +1246,7 @@ document.addEventListener('DOMContentLoaded', () => {
              instructionsModal.addEventListener('click', (e) => {
                 if (e.target === instructionsModal) {
                      instructionsModal.classList.remove('active');
+                     body.classList.remove('modal-open'); // Remove class from body
                 }
              });
          }
@@ -1406,7 +1497,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameElements.howToPlayBtn) {
             gameElements.howToPlayBtn.addEventListener('click', () => {
                 const instructionsModal = document.getElementById('instructions-modal');
-                if (instructionsModal) instructionsModal.classList.add('active');
+                if (instructionsModal) {
+                    instructionsModal.classList.add('active');
+                    body.classList.add('modal-open'); // Add class to body
+                }
             });
         }
         // Close instructions modal is handled by the general close button listener
