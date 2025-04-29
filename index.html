@@ -56,6 +56,22 @@
             position: relative;
             margin: 0;
         }
+        
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #ff4d00;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
         /* Novo estilo para prevenir scroll do body quando modal estiver ativo */
         body.modal-open {
             overflow: hidden;
@@ -789,7 +805,8 @@
 
     <header class="py-8 relative">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center">
+            <div class="profile-header">
+                <img src="foto1.png" alt="Foto de Perfil" class="profile-pic">
                 <h1 class="text-4xl md:text-5xl font-bold neon-text font-orbitron mb-8 home-button" id="home-button">Magaiver Braga Santana</h1>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-3xl mx-auto">
@@ -1092,6 +1109,15 @@
     <footer class="py-4 text-center text-gray-400">
         <p>© 2025 Magaiver Braga Santana. Código é poder.</p>
     </footer>
+
+<div id="spaceship" style="
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    background: url('spaceship.png') no-repeat center/contain;
+    z-index: 100;
+    pointer-events: none;
+"></div>
 
     <div id="info-modal" class="modal">
         <div class="modal-content">
@@ -1609,5 +1635,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }); // Fim do DOMContentLoaded
     </script>
+
+<script>
+// Adicione isso no final do arquivo, antes do </body>
+const spaceship = document.getElementById('spaceship');
+let posX = 0, posY = 0;
+
+function moveSpaceship() {
+    posX = Math.random() * window.innerWidth;
+    posY = Math.random() * window.innerHeight;
+    
+    spaceship.style.left = `${posX}px`;
+    spaceship.style.top = `${posY}px`;
+    
+    setTimeout(moveSpaceship, 3000 + Math.random() * 5000);
+}
+
+moveSpaceship();
+</script>
 </body>
 </html>
