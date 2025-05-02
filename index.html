@@ -56,14 +56,14 @@
             position: relative;
             margin: 0;
         }
-        
+
         .profile-header {
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-bottom: 2rem;
         }
-        
+
         .profile-pic {
             width: 120px;
             height: 120px;
@@ -699,45 +699,45 @@
                 height: 30px;
                 font-size: 1.2rem;
             }
-            
+
             /* Desativa animações que podem causar problemas */
             .nav-card::before, .cyber-card::before {
                 display: none !important; /* Remove completamente o efeito de scan */
                 animation: none !important;
             }
-            
+
             /* Desativa animações em geral para melhorar desempenho */
             .pulse, .glow, .glitch, .scan {
                 animation: none !important;
             }
-            
+
             /* Novos estilos para corrigir problemas de layout */
             .content-section {
                 padding: 0 0.5rem;
                 margin-top: 1rem;
                 overflow-x: hidden;
             }
-            
+
             .skill-chip {
                 margin-bottom: 0.5rem;
             }
-            
+
             .flex-wrap {
                 justify-content: center;
             }
-            
+
             /* Corrigir modal em dispositivos móveis */
             .modal-content {
                 width: 95%;
                 max-height: 80vh;
                 padding: 1rem;
             }
-            
+
             /* Melhorar espaçamento vertical */
             section {
                 margin-bottom: 2rem;
             }
-            
+
             /* Melhorar navegação em dispositivos móveis */
             header {
                 position: sticky;
@@ -747,38 +747,38 @@
                 padding-top: 1rem;
                 padding-bottom: 1rem;
             }
-            
+
             /* Ajustar espaçamento do conteúdo principal para compensar o header fixo */
             main {
                 padding-top: 1rem;
             }
         }
-        
+
         /* Media query adicional para telas muito pequenas */
         @media (max-width: 480px) {
             .grid-cols-5 {
                 grid-template-columns: 1fr;
             }
-            
+
             .nav-card {
                 min-height: 80px;
             }
-            
+
             h1.text-5xl {
                 font-size: 2rem;
             }
-            
+
             .modal-content {
                 padding: 0.75rem;
             }
-            
+
             .close-button {
                 top: 10px;
                 right: 10px;
                 width: 30px;
                 height: 30px;
             }
-            
+
             /* Adjusted size for character images on smaller screens */
             .game-character-img {
                 width: 50px;
@@ -788,7 +788,7 @@
                 width: 70px; /* Adjusted size for Dev on smaller screens */
                 height: 70px; /* Adjusted size for Dev on smaller screens */
             }
-            
+
             /* Desativa completamente efeitos de animação */
             .pulse, .glow, .glitch, .scan {
                 animation: none !important;
@@ -1004,6 +1004,25 @@
             <section id="projects" class="content-section">
                 <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Projetos</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    <div class="cyber-card fade-in" data-node="proj-mzm" data-modal-target="proj-mzm-modal">
+                        <div class="flex items-center">
+                             <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 10 10 11"></polyline>
+                            </svg>
+                            <h3 class="text-xl font-semibold text-[#ff4d00]">Método MZ-M: Modelagem Zen de Sistemas</h3>
+                        </div>
+                         <div class="card-content">
+                            <p class="text-gray-400">Projeto Open Source</p>
+                            <p>Uma abordagem inovadora para modelagem de lógica de negócio utilizando uma gramática formal baseada em CUE. Focado em clareza, solidez, rastreabilidade e automação para desenvolvedores.</p>
+                            <p>Este projeto inclui a definição da gramática, ferramentas (linter, tradutor) e documentação completa.</p>
+                             <a href="https://mzmagaiver.github.io/mzm-method/" target="_blank" class="text-[#ff4d00] hover:text-[#004aad] transition">Explorar Documentação</a>
+                        </div>
+                    </div>
                     <div class="cyber-card fade-in" data-node="proj-fornecedores" data-modal-target="proj-fornecedores-modal">
                         <div class="flex items-center">
                             <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
@@ -1500,7 +1519,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (gameState.timerInterval) clearInterval(gameState.timerInterval);
 
             if (gameElements.gameScreen) gameElements.gameScreen.classList.add('hidden');
-            if (gameElements.gameOver) gameElements.gameOver.classList.add('hidden');
+            if (gameElements.gameOver) gameElements.gameOver.classList.remove('hidden'); // Show game over screen
             if (gameElements.finalScore) gameElements.finalScore.textContent = gameState.score;
 
             // Hide character images when game ends
@@ -1644,10 +1663,10 @@ let posX = 0, posY = 0;
 function moveSpaceship() {
     posX = Math.random() * window.innerWidth;
     posY = Math.random() * window.innerHeight;
-    
+
     spaceship.style.left = `${posX}px`;
     spaceship.style.top = `${posY}px`;
-    
+
     setTimeout(moveSpaceship, 3000 + Math.random() * 5000);
 }
 
