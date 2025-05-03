@@ -1,498 +1,139 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portfólio de Magaiver Braga Santana, especialista em DevOps, automação e integração de TI com negócios">
-    <title>Magaiver Braga Santana</title>
+    <meta name="description" content="Portfólio de Magaiver Braga Santana, Generalista em Negócios | TI Aplicada | Auditoria | Tech Link | Business Hacker | Agente de Transformação Digital. Soluções inovadoras para o futuro.">
+    <title>Magaiver Braga Santana - Portfólio Tecnológico</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono&display=swap');
+        :root {
+            --color-bg-light: #FFFFFF;
+            --color-bg-section: #F0F4F8; /* Light subtle gray */
+            --color-text-dark: #212529; /* Very dark gray */
+            --color-text-secondary: #495057; /* Slightly lighter dark gray */
+            --color-primary-blue: #007BFF;
+            --color-accent-cyan: #17A2B8;
+            --color-border-light: #CED4DA;
+
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+
+            --shadow-clean: rgba(0, 0, 0, 0.08);
+             --gradient-clean-tech: linear-gradient(45deg, #007BFF, #17A2B8); /* Blue to Cyan */
+        }
+
         body {
-            font-family: 'Roboto Mono', monospace;
-            background: #0d0d1a;
-            color: #e0e0ff;
+            font-family: var(--font-body);
+            color: var(--color-text-dark);
+            line-height: 1.8;
+            background-color: var(--color-bg-light);
             overflow-x: hidden;
-            position: relative;
-            margin: 0;
         }
 
-        .profile-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 2rem;
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--color-text-dark);
+            font-weight: 700;
         }
 
-        .profile-pic {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 3px solid #ff4d00;
-            object-fit: cover;
-            margin-bottom: 1rem;
+        h2 {
+             text-align: center;
+             margin-bottom: 3rem;
+             position: relative;
+             padding-bottom: 1rem;
+             font-size: 2.5rem;
         }
-        /* Novo estilo para prevenir scroll do body quando modal estiver ativo */
-        body.modal-open {
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
-        #particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0d0d1a, #1a1a33);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease;
-        }
-        #loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .star-loader {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #ff4d00, #004aad);
-            animation: pulse-star 1.5s infinite;
-            position: relative;
-        }
-        .star-loader::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: -20px;
-            right: -20px;
-            bottom: -20px;
-            border: 2px solid #ff4d00;
-            border-radius: 50%;
-            animation: orbit 2s infinite;
-            opacity: 0.5;
-        }
-        .star-loader::after {
-            content: '';
-            position: absolute;
-            top: -40px;
-            left: -40px;
-            right: -40px;
-            bottom: -40px;
-            border: 2px solid #004aad;
-            border-radius: 50%;
-            animation: orbit 3s infinite reverse;
-            opacity: 0.3;
-        }
-        @keyframes pulse-star {
-            0% { transform: scale(1); box-shadow: 0 0 20px #ff4d00; }
-            50% { transform: scale(1.2); box-shadow: 0 0 40px #004aad; }
-            100% { transform: scale(1); box-shadow: 0 0 20px #ff4d00; }
-        }
-        @keyframes orbit {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .neon-text {
-            background: linear-gradient(45deg, #ff4d00, #004aad);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 15px rgba(255, 77, 0, 0.8);
-            animation: glow 2s infinite;
-        }
-        @keyframes glow {
-            0% { text-shadow: 0 0 10px rgba(255, 77, 0, 0.8); }
-            50% { text-shadow: 0 0 20px rgba(255, 77, 0, 1); }
-            100% { text-shadow: 0 0 10px rgba(255, 77, 0, 0.8); }
-        }
-        .nav-card {
-            position: relative;
-            background: linear-gradient(135deg, rgba(10, 10, 30, 0.9), rgba(20, 20, 40, 0.7));
-            border: 2px solid #ff4d00;
-            border-radius: 8px;
-            /* Removed overflow: hidden; */
-            transition: all 0.3s ease;
-            /* Removed text-align: center; */
-            padding: 1.5rem;
-            box-shadow: 0 0 15px rgba(255, 77, 0, 0.3);
-            cursor: pointer;
-            display: flex; /* Added for Flexbox */
-            flex-direction: column; /* Stack icon and text vertically */
-            justify-content: center; /* Center content vertically */
-            align-items: center; /* Center content horizontally */
-        }
-        .nav-card:hover {
-            background: linear-gradient(135deg, #004aad, #ff4d00);
-            border-color: #b0b0b0;
-            box-shadow: 0 0 30px rgba(255, 77, 0, 0.8);
-            transform: translateY(-5px);
-        }
-        /* Removendo o efeito de linha de escaneamento */
-        /* .nav-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #ff4d00, transparent);
-            animation: scan 3s infinite;
-        } */
-        .nav-text {
-            position: relative;
-            z-index: 1;
-            transition: color 0.3s ease;
-            text-align: center;
-        }
-        .nav-card:hover .nav-text {
-            color: #e0e0ff;
-            animation: glitch 0.3s ease infinite;
-        }
-        .content-section {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            margin-top: 2rem;
-        }
-        .content-section.active {
-            display: block;
-            opacity: 1;
-        }
-        .cyber-card {
-            background: rgba(20, 20, 40, 0.85);
-            border: 2px solid #ff4d00;
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            cursor: pointer;
-            margin-bottom: 1rem;
-            overflow: hidden;
-        }
-        .cyber-card:hover {
-            box-shadow: 0 0 40px rgba(255, 77, 0, 0.6);
-            transform: scale(1.02);
-        }
-        .cyber-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 77, 0, 0.3), transparent);
-            transition: left 0.5s ease;
-        }
-        .cyber-card:hover::before {
-            left: 100%;
-        }
-        /* Removed .cyber-card.expanded styles as content will open in modal */
-        .card-content {
-            display: none; /* Content is now in the modal */
-        }
-        .single-card {
-            max-width: 32rem;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .connection-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
-        @keyframes scan {
-            0% { left: -100%; }
-            50% { left: 100%; }
-            100% { left: 100%; }
-        }
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(2px, -2px); }
-            60% { transform: translate(-2px, 0); }
-            80% { transform: translate(2px, 2px); }
-            100% { transform: translate(0); }
-        }
-        .fade-in {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.7s ease, transform 0.7s ease;
-        }
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        .pulse {
-            animation: pulse 1.5s infinite;
-        }
-        .font-orbitron {
-            font-family: 'Orbitron', sans-serif;
-        }
-        .nav-card::after {
+
+         h2::after {
             content: '';
             position: absolute;
             bottom: 0;
-            right: 0;
-            width: 20px;
-            height: 20px;
-            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIxeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwIDEwTDE1IDVNNCAxNUwxNSA1IiBzdHJva2U9IiNmZjRkMDAiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4=') no-repeat;
-            opacity: 0.5;
-        }
-        .nav-card:hover::after {
-            opacity: 1;
-        }
-        .title-particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
-        .icon {
-            width: 40px;
-            height: 40px;
-            margin-bottom: 0.5rem;
-        }
-        .home-button {
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        .home-button:hover {
-            transform: scale(1.05);
-        }
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 3px;
+            background: var(--gradient-clean-tech);
+            border-radius: 2px;
+         }
 
-        /* Estilo Corrigido para o Nome */
-        #home-button {
-            position: relative;
-            display: block;
-            background: linear-gradient(45deg, #ff4d00, #004aad);
+        .text-gradient-clean {
+            background: var(--gradient-clean-tech);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 15px rgba(255, 77, 0, 0.5);
-            transition: all 0.3s ease;
-            padding: 0 10px;
-            margin-left: auto;
-            margin-right: auto;
-            width: fit-content;
-        }
-        #home-button:hover {
-            transform: scale(1.05);
-            text-shadow: 0 0 20px rgba(255, 77, 0, 0.8);
-            animation: glitch 0.5s linear infinite;
-        }
-        #home-button::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            border: 2px solid #ff4d00;
-            border-radius: 10px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        #home-button:hover::before {
-            opacity: 0.5;
-            animation: pulse-border 1.5s infinite;
-        }
-        @keyframes pulse-border {
-            0% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 0.5; }
         }
 
-        /* Estilos do Jogo Consolidados */
-        #code-answer {
-            background: #1a1a33 !important;
-            color: #e0e0ff !important;
-            font-family: 'Roboto Mono', monospace;
-        }
-        #code-snippet {
-            background: #1a1a33;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            color: #e0e0ff;
-            font-family: 'Roboto Mono', monospace;
-        }
-        .projectile {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(45deg, #ff4d00, #ff0000);
-            border-radius: 50%;
-            right: 80px;
-            top: 50%;
-            transform: translateY(-50%);
-            animation: fly 2s linear;
-            box-shadow: 0 0 10px #ff4d00;
-            z-index: 10;
-        }
-        @keyframes fly {
-            0% {
-                right: 80px;
-                transform: translateY(-50%) scale(0.2);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                right: calc(100% - 80px);
-                transform: translateY(-50%) scale(1);
-                opacity: 0;
-            }
-        }
-        /* Remove float animation from enemy character div */
-        /* #enemy-character {
-            animation: float 2s infinite ease-in-out;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        } */
-        /* Remove transition and hit/defend animations from player character div */
-        /* #player-character {
-            transition: transform 0.3s ease;
-        }
-        #player-character.hit {
-            animation: shake 0.5s ease-in-out;
-        }
-        #player-character.defend {
-            animation: defend 0.3s ease-in-out;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        @keyframes defend {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        } */
-
-        /* New styles for GIF characters */
-        .game-character-img {
-            position: absolute;
-            width: 80px; /* Set a fixed size */
-            height: 80px; /* Set a fixed size */
-            object-fit: contain; /* Ensures the entire GIF is visible */
-            z-index: 5; /* Ensure they are above the background */
+        .btn-clean-primary {
+            background: var(--gradient-clean-tech);
+            color: white;
+            padding: 0.9rem 2.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
         }
 
-        #dev-character-img {
-            bottom: 10px; /* Position above the bottom */
-            left: 10px; /* Position from the left */
-            width: 100px; /* Increased size for Dev */
-            height: 100px; /* Increased size for Dev */
+        .btn-clean-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
         }
 
-        #bug-character-img {
-            bottom: 10px; /* Position above the bottom */
-            right: 10px; /* Position from the right */
-            animation: float 2s infinite ease-in-out; /* Keep float animation for the bug */
-        }
-         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* Add hit/defend animations to the DEV image */
-        #dev-character-img.hit {
-            animation: shake 0.5s ease-in-out;
-        }
-        #dev-character-img.defend {
-            animation: defend 0.3s ease-in-out;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        @keyframes defend {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        .card-clean {
+            background-color: var(--color-bg-light);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px var(--shadow-clean);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+             height: 100%; /* Ensure cards in a grid have equal height */
+             display: flex;
+             flex-direction: column;
+             border: 1px solid var(--color-border-light);
         }
 
+        .card-clean:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-clean);
+        }
 
-        /* Modal Base Styles */
+        .skill-chip-clean {
+            background-color: rgba(0, 123, 255, 0.1);
+            color: var(--color-text-dark);
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            margin: 0.4rem;
+            border: 1px solid rgba(0, 123, 255, 0.3);
+             display: inline-block;
+             font-weight: 500;
+             color: var(--color-primary-blue);
+        }
+
+         a {
+            color: var(--color-primary-blue);
+            transition: color 0.3s ease;
+            text-decoration: none;
+         }
+         a:hover {
+             color: var(--color-accent-cyan);
+             text-decoration: underline;
+         }
+
+         /* Modal Styles */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(20, 20, 40, 0.9);
+            background: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -500,1177 +141,564 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
-             /* Ensure modal content is centered even if it doesn't take full height */
-             align-items: flex-start;
-             overflow-y: auto; /* Allow scrolling for the modal overlay itself if needed (less common) */
+            overflow-y: auto;
         }
+
         .modal.active {
             opacity: 1;
             pointer-events: auto;
         }
+
         .modal-content {
-            background: #0d0d1a;
-            border: 2px solid #ff4d00;
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 700px; /* Increased max-width for expanded info */
+            background-color: var(--color-bg-light);
+            color: var(--color-text-dark);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            max-width: 750px;
             width: 90%;
-            text-align: left; /* Align text left for better readability */
-            box-shadow: 0 0 40px rgba(255, 77, 0, 0.6);
-            position: relative; /* Needed for close button positioning */
-            max-height: 90%; /* Added max-height */
-            overflow-y: auto; /* Added scroll for long content */
-            margin: 2rem auto; /* Add margin top/bottom and auto for left/right to center */
-            flex-shrink: 0; /* Prevent shrinking */
+            position: relative;
+            max-height: 90%;
+            overflow-y: auto;
+            margin: 2rem auto;
+             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-        .modal-content h3 {
-            font-family: 'Orbitron', sans-serif;
-            color: #ff4d00;
-            margin-bottom: 1rem;
-            text-align: center; /* Center modal titles */
-        }
-        .modal-content p {
-            color: #e0e0ff;
-            margin-bottom: 1rem;
-            line-height: 1.6; /* Improved line spacing for readability */
-        }
-        .modal-content ul {
-             color: #e0e0ff; /* Ensure list items inherit color */
+
+         .modal-content h3 {
+            color: var(--color-primary-blue);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+             border-bottom: 2px solid var(--color-accent-cyan);
+             padding-bottom: 0.8rem;
+             display: inline-block;
+             left: 50%;
+             position: relative;
+             transform: translateX(-50%);
+         }
+
+         .modal-content p, .modal-content ul {
+             color: var(--color-text-secondary);
              margin-bottom: 1rem;
-             padding-left: 1.5rem; /* Add padding for list markers */
-        }
+             line-height: 1.8;
+         }
+
+         .modal-content ul {
+             padding-left: 1.8rem;
+             list-style: disc;
+             color: var(--color-text-secondary);
+         }
+
          .modal-content ul li {
-            margin-bottom: 0.5rem; /* Spacing for list items */
-            line-height: 1.5; /* Improved line spacing for list items */
+             margin-bottom: 0.6rem;
          }
-         .modal-content h4 { /* Added style for potential sub-headings */
-             font-family: 'Orbitron', sans-serif;
-             color: #b0b0b0;
-             margin-top: 1.5rem;
-             margin-bottom: 0.8rem;
-             font-size: 1.1rem;
-             border-bottom: 1px solid rgba(255, 77, 0, 0.3);
-             padding-bottom: 0.4rem;
+        .modal-content a {
+             color: var(--color-primary-blue);
+         }
+         a {
+            color: var(--color-primary-blue);
+            transition: color 0.3s ease;
+            text-decoration: none;
+         }
+         a:hover {
+             color: var(--color-accent-cyan);
+             text-decoration: underline;
          }
 
-
-        /* Custom Close Button Styles */
-        .close-button {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: linear-gradient(45deg, #ff4d00, #ff0000);
-            color: #e0e0ff;
-            border: none;
-            border-radius: 50%; /* Circular button */
-            width: 40px; /* Button size */
-            height: 40px; /* Button size */
-            font-size: 1.5rem; /* 'X' size */
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(255, 77, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Orbitron', sans-serif;
-            overflow: hidden;
-        }
-        .close-button:hover {
-            background: linear-gradient(45deg, #004aad, #0000ff);
-            transform: rotate(90deg) scale(1.1); /* Rotate and scale on hover */
-            box-shadow: 0 0 20px rgba(0, 77, 255, 0.8);
-        }
-         .close-button::before {
-            content: '';
-            position: absolute;
+         /* Modal Styles */
+        .modal {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, transparent 50%, rgba(255, 255, 255, 0.1) 50%);
-            background-size: 200% 200%;
-            transition: background-position 0.5s ease;
-         }
-        .close-button:hover::before {
-            background-position: 100% 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            overflow-y: auto;
         }
 
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-        /* Estilos do Menu de Dificuldade */
-        #difficulty-menu {
-            display: none;
-            margin-top: 1rem;
-            background: rgba(20, 20, 40, 0.9);
-            border: 2px solid #ff4d00;
-            border-radius: 8px;
-            padding: 1rem;
+        .modal-content {
+            background-color: var(--color-bg-light);
+            color: var(--color-text-dark);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            max-width: 750px;
+            width: 90%;
+            position: relative;
+            max-height: 90%;
+            overflow-y: auto;
+            margin: 2rem auto;
+             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+         .modal-content h3 {
+            color: var(--color-primary-blue);
             text-align: center;
-        }
-        .difficulty-btn {
-            background: linear-gradient(45deg, #ff4d00, #004aad);
-            color: #e0e0ff;
-            text-shadow: 0 0 10px rgba(255, 77, 0, 0.8);
-            padding: 0.5rem 1rem;
-            margin: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+             border-bottom: 2px solid var(--color-accent-cyan);
+             padding-bottom: 0.8rem;
+             display: inline-block;
+             left: 50%;
+             position: relative;
+             transform: translateX(-50%);
+         }
+
+         .modal-content p, .modal-content ul {
+             color: var(--color-text-secondary);
+             margin-bottom: 1rem;
+             line-height: 1.8;
+         }
+
+         .modal-content ul {
+             padding-left: 1.8rem;
+             list-style: disc;
+             color: var(--color-text-secondary);
+         }
+
+         .modal-content ul li {
+             margin-bottom: 0.6rem;
+         }
+        .modal-content a {
+             color: var(--color-primary-blue);
+         }
+         .modal-content a:hover {
+             color: var(--color-accent-cyan);
+         }
+
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
             border: none;
-            border-radius: 8px;
+            font-size: 2rem;
+            color: var(--color-text-secondary);
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .difficulty-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 77, 0, 0.8);
+            transition: transform 0.3s ease, color 0.3s ease;
+            line-height: 1;
         }
 
-        /* Media Queries */
+        .close-button:hover {
+            transform: rotate(90deg);
+            color: #DC3545; /* Red for closing */
+        }
+
+        /* Responsive Adjustments */
         @media (max-width: 768px) {
-            .nav-card {
-                padding: 1rem;
-                height: auto;
-                min-height: 100px;
-                width: 100%;
-                transform: none !important; /* Desativa efeito tilt em dispositivos móveis */
-            }
-            .grid-cols-3 {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            .grid-cols-5 {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 0.75rem;
-            }
-            .single-card {
-                max-width: 100%;
-                margin: 0 0.5rem;
-                padding: 1rem;
-            }
-            .text-5xl {
-                font-size: 2rem;
-            }
-            h1.text-5xl {
-                font-size: 2.5rem;
-            }
-            .nav-card .nav-text {
-                font-size: 0.875rem;
-            }
-            .icon {
-                width: 30px;
-                height: 30px;
-            }
-            .cyber-card {
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-            .cyber-card h3 {
-                font-size: 1.25rem;
-            }
-            .cyber-card p {
-                font-size: 0.875rem;
-            }
-            #game-container .flex {
-                flex-direction: column;
-                align-items: center;
-            }
-            #game-container .flex > div {
-                text-align: center !important;
-                margin-bottom: 0.5rem;
-            }
-            /* Adjusted size for character images on smaller screens */
-            .game-character-img {
-                width: 60px;
-                height: 60px;
-            }
-             #dev-character-img {
-                width: 80px; /* Adjusted size for Dev on smaller screens */
-                height: 80px; /* Adjusted size for Dev on smaller screens */
-            }
-            #code-challenge {
-                padding: 0.8rem;
-            }
-            #code-challenge input, #code-challenge button {
-                font-size: 0.875rem;
-            }
-            .modal-content {
-                padding: 1rem;
-                margin: 1rem auto; /* Adjust modal margin on smaller screens */
-            }
-            .close-button {
-                width: 30px;
-                height: 30px;
-                font-size: 1.2rem;
-            }
-
-            /* Desativa animações que podem causar problemas */
-            .nav-card::before, .cyber-card::before {
-                display: none !important; /* Remove completamente o efeito de scan */
-                animation: none !important;
-            }
-
-            /* Desativa animações em geral para melhorar desempenho */
-            .pulse, .glow, .glitch, .scan {
-                animation: none !important;
-            }
-
-            /* Novos estilos para corrigir problemas de layout */
-            .content-section {
-                padding: 0 0.5rem;
-                margin-top: 1rem;
-                overflow-x: hidden;
-            }
-
-            .skill-chip {
-                margin-bottom: 0.5rem;
-            }
-
-            .flex-wrap {
-                justify-content: center;
-            }
-
-            /* Corrigir modal em dispositivos móveis */
-            .modal-content {
-                width: 95%;
-                max-height: 80vh;
-                padding: 1rem;
-            }
-
-            /* Melhorar espaçamento vertical */
-            section {
-                margin-bottom: 2rem;
-            }
-
-            /* Melhorar navegação em dispositivos móveis */
-            header {
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                background: rgba(13, 13, 26, 0.95);
-                padding-top: 1rem;
-                padding-bottom: 1rem;
-            }
-
-            /* Ajustar espaçamento do conteúdo principal para compensar o header fixo */
-            main {
-                padding-top: 1rem;
-            }
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; margin-bottom: 2rem;}
+            .card-clean { padding: 1.5rem; margin-bottom: 1.5rem;}
+            .modal-content { padding: 2rem; width: 95%; }
+            .skill-chip-clean { font-size: 0.85rem; padding: 0.4rem 1rem; margin: 0.25rem;}
+             .btn-clean-primary { padding: 0.7rem 2rem; font-size: 0.9rem;}
+             h2::after { width: 60px; height: 2px;}
+             .modal-content h3 { font-size: 1.5rem; padding-bottom: 0.5rem;}
         }
-
-        /* Media query adicional para telas muito pequenas */
-        @media (max-width: 480px) {
-            .grid-cols-5 {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-card {
-                min-height: 80px;
-            }
-
-            h1.text-5xl {
-                font-size: 2rem;
-            }
-
-            .modal-content {
-                padding: 0.75rem;
-            }
-
-            .close-button {
-                top: 10px;
-                right: 10px;
-                width: 30px;
-                height: 30px;
-            }
-
-            /* Adjusted size for character images on smaller screens */
-            .game-character-img {
-                width: 50px;
-                height: 50px;
-            }
-            #dev-character-img {
-                width: 70px; /* Adjusted size for Dev on smaller screens */
-                height: 70px; /* Adjusted size for Dev on smaller screens */
-            }
-
-            /* Desativa completamente efeitos de animação */
-            .pulse, .glow, .glitch, .scan {
-                animation: none !important;
-            }
-        }
+         @media (max-width: 480px) {
+             h1 { font-size: 2rem;}
+             h2 { font-size: 1.75rem;}
+             .btn-clean-primary { padding: 0.6rem 1.5rem; font-size: 0.85rem;}
+             .card-clean { padding: 1.2rem;}
+             .skill-chip-clean { font-size: 0.8rem; padding: 0.3rem 0.8rem; margin: 0.15rem;}
+             .modal-content { padding: 1.5rem;}
+             .modal-content h3 { font-size: 1.3rem;}
+             .close-button { top: 10px; right: 10px; font-size: 1.5rem;}
+         }
     </style>
 </head>
-<body>
-    <div id="loading-screen">
-        <div class="star-loader"></div>
-    </div>
-    <canvas id="particles"></canvas>
-    <canvas class="title-particles"></canvas>
+<body class="antialiased">
 
-    <header class="py-8 relative">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="profile-header">
-                <img src="foto1.png" alt="Foto de Perfil" class="profile-pic">
-                <h1 class="text-4xl md:text-5xl font-bold neon-text font-orbitron mb-8 home-button" id="home-button">Magaiver Braga Santana</h1>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-3xl mx-auto">
-                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="about">
-                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Sobre</span>
-                </div>
-                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="experience">
-                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                        <path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/>
-                    </svg>
-                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Experiência</span>
-                </div>
-                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="projects">
-                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                        <path d="M12 2l10 6.5v7L12 22 2 15.5v-7L12 2zm0 2.3L4 9.5v5l8 5.2 8-5.2v-5L12 4.3z"/>
-                    </svg>
-                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Projetos</span>
-                </div>
-                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="skills">
-                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                    </svg>
-                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Habilidades</span>
-                </div>
-                <div class="nav-card tilt" data-tilt data-tilt-max="20" data-section="contact">
-                    <svg class="icon mx-auto" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 2l-8 5-8-5h16zM4 18V8l8 5 8-5v10H4z"/>
-                    </svg>
-                    <span class="nav-text text-lg font-semibold text-[#ff4d00]">Contato</span>
-                </div>
-            </div>
+    <header class="relative overflow-hidden py-24 bg-gradient-to-b from-white to-blue-50 text-gray-800 text-center shadow-md">
+        <div class="absolute inset-0 z-0 opacity-20" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwN0JGRiIgc3Ryb2tlLXdpZHRoPSIxIj4KICAgICAgICA8cGF0aCBkPSJNMTIgMjhMMzIgOEg1MiAyOFM1MiAzNiAzMiA1NkMxMiAzNiAxMiAyOCAxMiAyOCIgLz4KICAgIDwvZz4KPC9zdmc+Cg=='); repeat; background-size: 32px 32px;"></div>
+        <div class="relative z-10">
+            <h1 class="text-5xl md:text-7xl font-bold mb-4 text-gradient-clean">Magaiver Braga Santana</h1>
+            <p class="text-xl md:text-2xl text-gray-600 mb-10">// Generalista em Negócios | TI Aplicada | Business Hacker | Agente de Transformação Digital //</p>
+            <p class="max-w-3xl mx-auto text-lg text-gray-700 mb-12">
+                Com experiência em auditoria e análise financeira, meu foco é conectar as necessidades do negócio com soluções de TI. Busco inovação e melhoria contínua nos processos. Atualmente, estou me aprofundando em UX Research, DevOps e MLOps. Meu objetivo é atuar como um generalista que traduz a estratégia em ações práticas, unindo visão sistêmica e execução no dia a dia.
+            </p>
+            <a href="#projects" class="btn-clean-primary inline-block mr-4 mb-4 md:mb-0">Explorar Projetos</a>
+            <a href="#contact" class="btn-clean-primary inline-block bg-none border-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white shadow-none hover:shadow-md">Conectar</a>
         </div>
     </header>
 
-    <main class="py-16">
-        <div class="max-w-7xl mx-auto px-4 relative">
-            <canvas class="connection-canvas"></canvas>
-            <section id="home" class="content-section active">
-                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Bem-vindo ao Meu Universo</h2>
-                <div class="grid grid-cols-1">
-                    <div class="cyber-card fade-in single-card" data-node="game" style="cursor: default;">
-                        <h3 class="text-xl font-semibold text-[#ff4d00]">Jogo do Dev: Defenda-se dos Erros!</h3>
-                        <div class="card-content" style="display: block; opacity: 1; transform: none;">
-                            <div id="game-container" class="text-center">
-                                <div id="game-start" class="mb-4">
-                                    <p class="mb-4">Defenda-se dos erros de sintaxe lançados pelo mago maligno!</p>
-                                    <div class="flex justify-center gap-4">
-                                        <button id="start-game" class="bg-[#ff4d00] text-white px-6 py-2 rounded-full hover:bg-[#004aad] transition">
-                                            Jogar
-                                        </button>
-                                        <button id="how-to-play" class="bg-[#004aad] text-white px-6 py-2 rounded-full hover:bg-[#ff4d00] transition">
-                                            Como Jogar
-                                        </button>
-                                    </div>
-                                    <div id="difficulty-menu">
-                                        <p class="text-lg mb-2">Escolha a Dificuldade:</p>
-                                        <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
-                                        <button class="difficulty-btn" data-difficulty="medium">Médio</button>
-                                        <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
-                                    </div>
-                                </div>
-                                <div id="game-screen" class="hidden">
-                                    <div class="flex flex-col md:flex-row justify-between items-center mb-4">
-                                        <div id="player" class="text-center md:text-left mb-2 md:mb-0">
-                                            <div class="text-lg font-semibold">Você</div>
-                                            <div>Vidas: <span id="lives">3</span></div>
-                                        </div>
-                                        <div id="score-board" class="text-center mb-2 md:mb-0">
-                                            <div class="text-lg font-semibold">Pontuação</div>
-                                            <div><span id="score">0</span> pts</div>
-                                        </div>
-                                        <div id="enemy" class="text-center md:text-right">
-                                            <div class="text-lg font-semibold">Mago do Bug</div>
-                                            <div>Nível: <span id="level">1</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="relative h-64 bg-[#0d0d1a] border-2 border-[#ff4d00] rounded-lg overflow-hidden">
-                                        <img id="dev-character-img" class="game-character-img" src="bLHOO.gif" alt="Personagem Dev">
-                                        <img id="bug-character-img" class="game-character-img" src="bLHyS.gif" alt="Personagem Bug">
+    <main class="container mx-auto px-4 py-16">
 
-                                        <div id="projectiles-container" class="absolute inset-0"></div>
-                                    </div>
-                                    <div id="code-challenge" class="mt-4 p-4 bg-[#1a1a33] rounded-lg text-left">
-                                        <div class="flex justify-between items-center mb-2">
-                                            <div>Corrija o erro:</div>
-                                            <div>Tempo: <span id="timer" class="text-[#ff4d00]">30</span>s</div>
-                                        </div>
-                                        <div id="code-snippet" class="font-mono mb-2 p-2 bg-[#0d0d1a] rounded"></div>
-                                        <input type="text" id="code-answer" class="w-full bg-[#0d0d1a] border border-[#ff4d00] rounded px-3 py-2 text-white focus:outline-none focus:border-[#004aad]" placeholder="Digite a correção...">
-                                        <button id="submit-answer" class="mt-2 bg-[#ff4d00] text-white px-4 py-1 rounded hover:bg-[#004aad] transition">
-                                            Enviar
-                                        </button>
-                                     <button id="back-to-menu" class="mt-4 bg-[#004aad] text-white px-6 py-2 rounded-full hover:bg-[#ff4d00] transition">
-                                        Voltar ao Menu
-                                    </button>
-                                    </div>
-                                </div>
-                                <div id="game-over" class="mt-4 text-center hidden">
-                                    <div class="text-xl font-semibold mb-2">Game Over!</div>
-                                    <div class="mb-4">Sua pontuação: <span id="final-score">0</span></div>
-                                    <button id="restart-game" class="bg-[#ff4d00] text-white px-6 py-2 rounded-full hover:bg-[#004aad] transition">
-                                        Jogar Novamente
-                                    </button>
-                                    <button id="back-to-menu-gameover" class="mt-4 bg-[#004aad] text-white px-6 py-2 rounded-full hover:bg-[#ff4d00] transition">
-                                        Voltar ao Menu
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section id="about" class="content-section">
-                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Sobre Mim</h2>
-                <div class="grid grid-cols-1">
-                    <div class="cyber-card fade-in single-card" data-node="about" data-modal-target="about-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Perfil Profissional</h3>
-                        </div>
-                        <div class="card-content">
-                             <p>Sempre fui fascinado por tecnologia. Desde cedo eu sempre tive uma curiosidade natural por entender como as coisas funcionam. Mesmo quando trabalhei em áreas onde a tecnologia não era a prioridade, ela sempre esteve presente de alguma forma no meu dia a dia. Esses ambientes, muitas vezes carentes de soluções digitais, me deram a chance de me destacar. Sempre foi comum que eu aprendesse rapidamente a lidar com sistemas, relatórios, softwares e conectividades em geral. Acabava me tornando referência entre os colegas, assumindo o papel de multiplicador de conhecimento e em muitos casos, me tornava um usuário-chave.</p>
-                             <p>Apesar desse interesse e vocação, minha formação inicial seguiu outro rumo. Quando conheci o setor da construção civil, me encantei e comecei a cursar Engenharia Civil. Os estudos iam bem, assim como o trabalho, mas algo não encaixava; pois, eu não me sentia realmente conectado à engenharia. Curiosamente, as pessoas ao meu redor pareciam perceber isso antes de mim. familiares, colegas e até os meus gestores diziam que eu estava no setor errado. Provavelmente porque, mesmo em um canteiro de obras, minha cabeça estava sempre era voltada a encontrar soluções digitais, a pensar diferente, a conectar ideias, criar soluções tecnológicas.</p>
-                             <p>Em janeiro de 2025, decidi ouvir esse instinto e mudei de área. Hoje o meu foco é ser a ponte entre a tecnologia da informação e as necessidades do negócio. Meu objetivo vai além de programar, na minha humilde opinião já temos códigos por todos os lados, inclusive gerados por inteligência artificial. O que eu quero entregar é a minha curiosidade como motor de inovação: buscar novas formas de resolver problemas, automatizar a resolução de problemas e melhorar a experiência das pessoas com a tecnologia.</p>
-                             <p>Acredito que minha bagagem em outros setores me dá uma visão prática, mais centrada na experiência usuário. Sou criativo, inquieto e inconformado quando o assunto é tecnologia. E acima de tudo, sigo sendo um entusiasta curioso. Vamos juntos nessa? O que você pode me ensinar? Estou pronto para aprender.</p>
-                            <a href="Magaiver Braga.pdf" download class="mt-4 inline-block bg-transparent border-2 border-[#ff4d00] text-[#ff4d00] px-6 py-2 rounded-full hover:bg-[#ff4d00] hover:text-[#e0e0ff] transition pulse">Baixar CV</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section id="experience" class="content-section">
-                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Experiência Profissional</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="cyber-card fade-in" data-node="exp-cimcop-keyuser" data-modal-target="exp-cimcop-keyuser-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M12 2a10 10 0 0 0-10 10c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.12-1.47-1.12-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.5 2.28 1.07 2.84.82.09-.64.35-1.07.63-1.32-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.56 9.56 0 0 1 12 6.8c.85 0 1.71.11 2.51.33 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.56.71.56 1.44v2.14c0 .27.16.58.67.5A10 10 0 0 0 22 12a10 10 0 0 0-10-10z"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">CIMCOP - Key User</h3>
-                        </div>
-                         <div class="card-content">
-                            <p class="text-gray-400">CIMCOP Engenharia | Jul 2023 - Atual</p>
-                            <p>Atuei na Cimcop Engenharia como Assistente Administrativo, sendo responsável pelo controle financeiro e pela administração de obras de pequeno porte. Minhas atribuições envolvem a gestão do caixa da obra, controle e lançamento de despesas, aprovação de processos e acompanhamento de pagamentos a fornecedores e subempreiteiros. Também sou responsável pelo custo local, controle de hospedagem e alimentação, garantindo o suporte necessário às frentes de serviço.</p>
-                            <p>Além disso, dou apoio administrativo ao setor de Suprimentos e ao gerente de contratos da obra. Coordeno o almoxarifado de pequeno porte, atendendo às demandas das frentes e direcionando-as à matriz quando necessário. Também realizo pequenas compras locais e emergenciais, participo do controle de medições de equipamentos e partes diárias, e sou responsável pelo lançamento do RDO (Relatório Diário de Obra).</p>
-                            <p>No início da minha trajetória na Cimcop, atuei como Auxiliar de Almoxarifado, o que me proporcionou vivência direta com os processos de suprimentos e compras. Nessa função, apoiei a equipe de compras e assumi atividades durante ausências dos compradores. Também atuei como auditor interno em auditorias de suprimentos, com foco na identificação e correção de não conformidades relacionadas ao estoque.</p>
-                            <p>De forma integrada, minhas atividades abrangem os setores de compras, administração, suprimentos, medições, controle de baixas, gestão do caixa e fluxo de caixa. Ofereço suporte administrativo às áreas operacionais, assistência à gerência e à equipe da central, além de colaborar com o setor jurídico na elaboração de contratos, cadastro e avaliação de fornecedores.</p>
-                        </div>
-                    </div>
-                    <div class="cyber-card fade-in" data-node="exp-cimcop-auditor" data-modal-target="exp-cimcop-auditor-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">CIMCOP - Auditor</h3>
-                        </div>
-                         <div class="card-content">
-                            <p class="text-gray-400">CIMCOP Engenharia | Jan 2023</p>
-                            <p>Meu primeiro contato com a Cimcop foi como prestador de serviço. Atuei inicialmente como consultor, realizando visitas a fornecedores com o objetivo de fortalecer a imagem da empresa e transmitir nossa visão sobre parcerias sustentáveis, sempre em alinhamento com as práticas de compliance.</p>
-                            <p>Após essa etapa, dei início a um trabalho de auditoria de estoque, voltado à implementação de melhorias práticas e à correção de não conformidades. Nesse mesmo período, também fui efetivado como colaborador no cargo de Auxiliar de Almoxarifado e comecei a me aprofundar nas áreas de Suprimentos, Almoxarifado, Estoque e Compras.</p>
-                        </div>
-                    </div>
-                    <div class="cyber-card fade-in" data-node="exp-polly" data-modal-target="exp-polly-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Mercado Livre (Polly Service)</h3>
-                        </div>
-                        <div class="card-content">
-                            <p class="text-gray-400">Mercado Livre | Jan 2022 - Abr 2023</p>
-                            <p>Atuei como Líder de Turno na operação do Mercado Livre em Contagem, prestando serviço como terceirizado. Minha principal responsabilidade era supervisionar o desempenho da equipe, assegurando o cumprimento das metas definidas pelo cliente.</p>
-                            <p>Além da gestão de equipe, eu também era responsável pelo fornecimento e controle de EPIs, bem como por promover a organização do ambiente de trabalho com base na metodologia 5S.</p>
-                        </div>
-                    </div>
-                    <div class="cyber-card fade-in" data-node="exp-localiza" data-modal-target="exp-localiza-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Localiza Hertz</h3>
-                        </div>
-                         <div class="card-content">
-                            <p class="text-gray-400">Jan 2017 - Set 2019</p>
-                            <p>Na Localiza, atuei no processamento de despesas, avaliando os processos conforme os critérios definidos e conduzindo tratativas relacionadas a ocorrências e sinistros, em constante interface com o setor de orçamentos.</p>
-                            <p>Também desempenhei o papel de usuário-chave, com foco em práticas de TI. Fui um usuário ativo em processos alinhados ao modelo DevOps, aplicando conhecimentos tanto técnicos quanto de negócio. Participei da criação de processos sistêmicos voltados ao setor e colaborei em iniciativas de melhoria contínua, contribuindo para a evolução dos fluxos operacionais da empresa.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section id="projects" class="content-section">
-                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Projetos</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <section id="about" class="mb-16">
+            <h2>Sobre Mim</h2>
+            <div class="card-clean max-w-5xl mx-auto">
+                 <p class="text-lg mb-4 text-gray-700">Sempre fui fascinado por tecnologia, desde cedo a curiosidade em entender como as coisas funcionam me acompanhou. Mesmo em áreas onde a tecnologia não era o foco principal, ela sempre esteve presente de alguma forma no meu dia a dia. Esses ambientes, muitas vezes carentes de soluções digitais, foram onde tive a chance de me destacar. Era comum aprender rapidamente a lidar com sistemas, relatórios, softwares e conectividade, me tornando referência entre colegas e, em muitos casos, um usuário-chave.</p>
+                 <p class="text-lg mb-4 text-gray-700">Apesar desse interesse, minha formação inicial seguiu outro caminho. Encantei-me pela construção civil e comecei a cursar Engenharia Civil. Os estudos e o trabalho iam bem, mas sentia que algo não se encaixava, não estava realmente conectado à engenharia. Curiosamente, as pessoas ao meu redor percebiam isso antes de mim: familiares, colegas e até gestores diziam que eu estava no setor errado. Provavelmente porque, mesmo em um canteiro de obras, minha mente estava voltada para encontrar soluções digitais, pensar diferente, conectar ideias e criar tecnologia.</p>
+                 <p class="text-lg mb-4 text-gray-700">Em janeiro de 2025, decidi seguir esse instinto e mudei de área. Hoje, meu foco é ser a ponte entre a TI e as necessidades do negócio. Meu objetivo vai além de apenas programar — na minha humilde opinião, já temos código por todos os lados, inclusive gerado por IA. O que busco entregar é minha curiosidade como motor de inovação: encontrar novas formas de resolver problemas, automatizar processos e melhorar a experiência das pessoas com a tecnologia.</p>
+                 <p class="text-lg text-gray-700">Acredito que minha bagagem em outros setores me trouxe uma visão prática, mais centrada no usuário. Sou criativo, inquieto e inconformado quando o assunto é tecnologia. E, acima de tudo, sigo sendo um entusiasta curioso. Vamos nessa? O que você pode me ensinar? Estou pronto para aprender.</p>
+                 <div class="text-center mt-8">
+                    <a href="Magaiver Braga.pdf" download class="btn-clean-primary inline-block no-underline">Baixar CV</a>
+                 </div>
+            </div>
+        </section>
 
-                    <div class="cyber-card fade-in" data-node="proj-mzm" data-modal-target="proj-mzm-modal">
-                        <div class="flex items-center">
-                             <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                                <polyline points="10 9 9 10 10 11"></polyline>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Método MZ-M: Modelagem Zen de Sistemas</h3>
-                        </div>
-                         <div class="card-content">
-                            <p class="text-gray-400">Projeto Open Source</p>
-                            <p>Uma abordagem inovadora para modelagem de lógica de negócio utilizando uma gramática formal baseada em CUE. Focado em clareza, solidez, rastreabilidade e automação para desenvolvedores.</p>
-                            <p>Este projeto inclui a definição da gramática, ferramentas (linter, tradutor) e documentação completa.</p>
-                             <a href="https://mzmagaiver.github.io/mzm-method/" target="_blank" class="text-[#ff4d00] hover:text-[#004aad] transition">Explorar Documentação</a>
-                        </div>
-                    </div>
-                    <div class="cyber-card fade-in" data-node="proj-fornecedores" data-modal-target="proj-fornecedores-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2m8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm8 10v-2a4 4 0 0 0-3-3.87m-4-8a3 3 0 1 1 6 0 3 3 0 0 1-6 0z"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Portal de Fornecedores</h3>
-                        </div>
-                         <div class="card-content">
-                            <p class="text-gray-400">CIMCOP Engenharia</p>
-                            <p>Fui o idealizador e principal articulador do projeto do Portal de Fornecedores da empresa. A iniciativa começou de forma experimental, com foco em desenvolver uma solução utilizando os recursos disponíveis no pacote Microsoft 365.</p>
-                            <p>Após uma análise mais aprofundada do potencial do projeto, ele foi redirecionado para uma implementação em maior escala. A proposta evoluiu e passou a ser desenvolvida como uma consultoria externa, assumida pela equipe da 90Compor T.I, que atualmente está conduzindo a integração do portal com o sistema ERP da empresa.</p>
-                            <a href="#" target="_blank" class="text-[#ff4d00] hover:text-[#004aad] transition">Ver Projeto (Link Pendente)</a>
-                        </div>
-                    </div>
-                    <div class="cyber-card fade-in" data-node="proj-ms365" data-modal-target="proj-ms365-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M12 2v6h8m-8-6a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm-2 14v-4H4"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Automação com Microsoft 365</h3>
-                        </div>
-                         <div class="card-content">
-                            <p class="text-gray-400">CIMCOP Engenharia</p>
-                            <p>Fui responsável por implementar diversas integrações de processos utilizando as ferramentas do pacote Microsoft 365, eliminando a dependência de e-mails e migrando fluxos para soluções como Forms, Power Automate, Lists, Planner e Teams.</p>
-                            <p>Criei dashboards e alertas automatizados, otimizando a gestão de informações. Nas obras, introduzi o uso do Microsoft Forms como metodologia padrão, substituindo o uso de formulários em papel A4. A coleta de dados passou a ser feita diretamente por celular ou computador, com os registros integrados automaticamente a planilhas do Excel, facilitando o acompanhamento e a análise em tempo real.</p>
-                            <a href="#" target="_blank" class="text-[#ff4d00] hover:text-[#004aad] transition">Ver Projeto (Link Pendente)</a>
-                        </div>
-                    </div>
-                    <div class="cyber-card fade-in" data-node="proj-spoc" data-modal-target="proj-spoc-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M5 12h14M12 5v14"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Sistema SPOC</h3>
-                        </div>
-                        <div class="card-content">
-                            <p class="text-gray-400">Localiza Hertz</p>
-                            <p>Na Localiza, atuei diretamente na criação do sistema SPOC dentro da diretoria de operações. Participei como usuário-chave, contribuindo ativamente para a definição de funcionalidades, testes da plataforma e estruturação do layout.</p>
-                            <p>Após o desenvolvimento inicial, tornei-me multiplicador do sistema e ponto de contato com a equipe da DTI Digital, atuando como elo entre os usuários finais e os desenvolvedores para garantir a aderência do sistema às necessidades operacionais.</p>
-                            <a href="#" target="_blank" class="text-[#ff4d00] hover:text-[#004aad] transition">Ver Projeto (Link Pendente)</a>
-                        </div>
-                    </div>
+        <section id="skills" class="py-16 mb-16 bg-gray-50">
+             <div class="container mx-auto px-4">
+                <h2>Habilidades Técnicas</h2>
+                <div class="card-clean max-w-6xl mx-auto text-center">
+                    <div class="flex flex-wrap justify-center gap-3">
+                         <span class="skill-chip-clean">HTML</span>
+                         <span class="skill-chip-clean">CSS</span>
+                         <span class="skill-chip-clean">JavaScript (iniciante)</span>
+                         <span class="skill-chip-clean">Python (iniciante)</span>
+                         <span class="skill-chip-clean">Git</span>
+                         <span class="skill-chip-clean">GitHub</span>
+                         <span class="skill-chip-clean">Supabase</span>
+                         <span class="skill-chip-clean">Microsoft 365 (Power Automate, Forms, Excel)</span>
+                         <span class="skill-chip-clean">Introdução a DevOps (CI/CD)</span>
+                         <span class="skill-chip-clean">Scrum</span>
+                         <span class="skill-chip-clean">Kanban</span>
+                         <span class="skill-chip-clean">Administração</span>
+                         <span class="skill-chip-clean">Gestão de compras</span>
+                         <span class="skill-chip-clean">Auditoria de estoque</span>
+                         <span class="skill-chip-clean">Automação de processos</span>
+                         <span class="skill-chip-clean">Lógica de programação</span>
+                         <span class="skill-chip-clean">Transformação digital</span>
+                         <span class="skill-chip-clean">Auditoria</span>
+                         <span class="skill-chip-clean">Suporte de hardware de TI</span>
+                         <span class="skill-chip-clean">Suporte ao cliente</span>
+                         <span class="skill-chip-clean">UX Research (Preparando)</span>
+                         <span class="skill-chip-clean">MLOps (Preparando)</span>
+                     </div>
                 </div>
-            </section>
-            <section id="skills" class="content-section">
-                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Habilidades Técnicas</h2>
-                <div class="grid grid-cols-1">
-                    <div class="cyber-card fade-in single-card" data-node="skills" data-modal-target="skills-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Habilidades Técnicas</h3>
-                        </div>
-                        <div class="card-content" style="display: block; opacity: 1; transform: none;">
-                             <div class="flex flex-wrap gap-2 justify-center">
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">DevOps</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Microsoft 365</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Gestor-90</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">SAP</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Relatórios BI</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">GOBR</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Auditoria de Processos</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Auditoria Financeira</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Auditoria de Estoque</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Python (Iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Power BI (Intermediario)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">JavaScript (Iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Scrum (Iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Kanban (Iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">HTML (inciantes)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">CSS (iniciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">Git (inciante)</span>
-                                <span class="skill-chip bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mb-2">GitHub (iniciante)</span>
-                            </div>
+            </div>
+        </section>
+
+        <section id="projects" class="container mx-auto px-4 py-16 mb-16">
+            <h2>Projetos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card-clean cursor-pointer" data-modal-target="modal-portfolio">
+                    <h3 class="text-xl font-semibold mb-3 text-center text-gradient-clean">Portfólio Web</h3>
+                     <p class="text-gray-500 text-sm mb-4 text-center">Projeto Pessoal</p>
+                    <div class="card-content flex-grow text-gray-700">
+                        <p>Este site foi desenvolvido usando HTML, CSS e JavaScript e está hospedado no GitHub Pages. Foi uma forma de aplicar meus conhecimentos fundamentais em front-end.</p>
+                    </div>
+                     <div class="text-center mt-6">
+                          <a href="https://mzmagaiver.github.io/MagaiverBraga" target="_blank" class="text-blue-600 hover:underline no-underline">Ver Projeto</a>
+                     </div>
+                </div>
+
+                <div class="card-clean cursor-pointer" data-modal-target="modal-github-repos">
+                    <h3 class="text-xl font-semibold mb-3 text-center text-gradient-clean">Repositórios GitHub</h3>
+                     <p class="text-gray-500 text-sm mb-4 text-center">Projeto Pessoal</p>
+                    <div class="card-content flex-grow text-gray-700">
+                        <p>Meus repositórios incluem exercícios práticos em HTML, CSS e Supabase. Utilizo o Git para versionamento e para aprimorar minha lógica de programação.</p>
+                    </div>
+                     <div class="text-center mt-6">
+                          <a href="https://github.com/MzMagaiver" target="_blank" class="text-blue-600 hover:underline no-underline">Ver GitHub</a>
+                     </div>
+                </div>
+
+                 <div class="card-clean cursor-pointer" data-modal-target="modal-mzm">
+                    <h3 class="text-xl font-semibold mb-3 text-center text-gradient-clean">Método MZ-M: Modelagem Zen de Sistemas</h3>
+                     <p class="text-gray-500 text-sm mb-4 text-center">Projeto Open Source</p>
+                    <div class="card-content flex-grow text-gray-700">
+                        <p>Desenvolvi uma abordagem para modelagem de lógica de negócio baseada em CUE, focada em clareza, solidez e rastreabilidade para desenvolvedores.</p>
+                        <p>O projeto inclui a definição da gramática, ferramentas como linter e tradutor, além de documentação completa.</p>
+                    </div>
+                     <div class="text-center mt-6">
+                          <a href="https://mzmagaiver.github.io/mzm-method/" target="_blank" class="text-blue-600 hover:underline no-underline">Explorar Documentação</a>
+                     </div>
+                </div>
+
+                 <div class="card-clean cursor-pointer" data-modal-target="modal-fornecedores">
+                     <h3 class="text-xl font-semibold mb-3 text-center text-gradient-clean">Portal de Fornecedores</h3>
+                     <p class="text-gray-500 text-sm mb-4 text-center">CIMCOP Engenharia</p>
+                     <div class="card-content flex-grow text-gray-700">
+                         <p>Idealizei e liderei a articulação do projeto do Portal de Fornecedores da empresa. Iniciamos de forma experimental com Microsoft 365, evoluindo para uma implementação maior com consultoria externa, focada na integração com o sistema ERP.</p>
+                     </div>
+                     <div class="text-center mt-6">
+                          <a href="#" class="text-blue-600 hover:underline no-underline">Leia Mais</a>
+                     </div>
+                 </div>
+
+                 <div class="card-clean cursor-pointer" data-modal-target="modal-ms365">
+                     <h3 class="text-xl font-semibold mb-3 text-center text-gradient-clean">Automação com Microsoft 365</h3>
+                     <p class="text-gray-500 text-sm mb-4 text-center">CIMCOP Engenharia</p>
+                     <div class="card-content flex-grow text-gray-700">
+                         <p>Implementei diversas automações e integrações de processos usando o pacote Microsoft 365 (Forms, Power Automate, Lists, Planner, Teams), reduzindo a dependência de e-mails e otimizando a gestão. Introduzi o uso de Forms para coleta de dados em obras, substituindo papel e integrando registros automaticamente.</p>
+                     </div>
+                     <div class="text-center mt-6">
+                          <a href="#" class="text-blue-600 hover:underline no-underline">Leia Mais</a>
+                     </div>
+                 </div>
+
+                 <div class="card-clean cursor-pointer" data-modal-target="modal-spoc">
+                     <h3 class="text-xl font-semibold mb-3 text-center text-gradient-clean">Sistema SPOC</h3>
+                     <p class="text-gray-500 text-sm mb-4 text-center">Localiza Hertz</p>
+                     <div class="card-content flex-grow text-gray-700">
+                         <p>Participei ativamente da criação do sistema SPOC na Localiza, atuando como usuário-chave na definição, testes e layout, garantindo a aderência às necessidades operacionais. Também fui multiplicador do sistema e ponte entre usuários e a equipe de TI Digital.</p>
+                     </div>
+                     <div class="text-center mt-6">
+                          <a href="#" class="text-blue-600 hover:underline no-underline">Leia Mais</a>
+                     </div>
+                 </div>
+            </div>
+        </section>
+
+         <section id="experience" class="py-16 mb-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2>Experiência Profissional</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="card-clean">
+                        <h3 class="text-xl font-semibold mb-2 text-primary-blue">CIMCOP Engenharia e Construções</h3>
+                        <p class="text-gray-500 text-sm mb-4">Julho/2023 – Atual</p>
+                         <div class="text-gray-700">
+                            <p class="mb-3 font-semibold">Comprador e Assistente Administrativo – Key User</p>
+                            <ul class="list-disc list-inside mb-3">
+                                <li>Gerenciei compras e negociações, reduzindo custos em 10% com cotações estratégicas.</li>
+                                <li>Liderei a administração de obras, controlando finanças e suprimentos. Automatizei processos via Microsoft 365, diminuindo o tempo de coleta de dados em 30%.</li>
+                                <li>Desenvolvi um portal de fornecedores, digitalizando fluxos e aumentando a eficiência em 20%.</li>
+                                <li>Conduzi auditorias de estoque, tratando não conformidades e otimizando suprimentos.</li>
+                            </ul>
+
+                            <p class="mb-3 font-semibold">Consultor em Auditoria de Estoque</p>
+                             <p class="mb-3">Janeiro/2023 – Junho/2023</p>
+                            <ul class="list-disc list-inside">
+                                <li>Realizei auditorias em fornecedores, propondo soluções para não conformidades e melhorando processos logísticos.</li>
+                            </ul>
                         </div>
                     </div>
-                </div>
-            </section>
-            <section id="contact" class="content-section">
-                <h2 class="text-3xl md:text-5xl font-bold neon-text font-orbitron mb-8 text-center">Contato</h2>
-                <div class="grid grid-cols-1">
-                    <div class="cyber-card fade-in single-card" data-node="contact" data-modal-target="contact-modal">
-                        <div class="flex items-center">
-                            <svg class="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" stroke="#ff4d00" stroke-width="2">
-                                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 2l-8 5-8-5h16zM4 18V8l8 5 8-5v10H4z"/>
-                            </svg>
-                            <h3 class="text-xl font-semibold text-[#ff4d00]">Entre em Contato</h3>
-                        </div>
-                        <div class="card-content" style="display: block; opacity: 1; transform: none;">
-                            <p class="text-lg">Pronto para construir o futuro juntos? Entre em contato!</p>
-                            <p class="mt-2">Email: <a href="E-mail: magaiverbragasantana@gmail.com" class="text-[#ff4d00] hover:text-[#004aad]"><span class="__cf_email__" data-cfemail="1a777b7d7b736c7f6878687b7d7b697b746e7b747b5a7d777b737634797577">magaiverbragasantana@gmail.com</span></a></p>
-                            <p>Telefone: <a href="tel:" class="text-[#ff4d00] hover:text-[#004aad]"></a></p>
-                            <p>LinkedIn: <a href="https://www.linkedin.com/in/magaiver-santana-b21b6b169/" target="_blank" class="text-[#ff4d00] hover:text-[#004aad]">LinkedIn Profile</a></p>
-                            <p>GitHub: <a href="https://github.com/MagaiverBraga" target="_blank" class="text-[#ff4d00] hover:text-[#004aad]">GitHub Profile</a></p>
+
+                     <div class="card-clean">
+                        <h3 class="text-xl font-semibold mb-2 text-primary-blue">Polly Service (Mercado Livre)</h3>
+                        <p class="text-gray-500 text-sm mb-4">Janeiro/2022 – Abril/2023</p>
+                         <div class="text-gray-700">
+                             <p class="mb-3 font-semibold">Líder de Equipe</p>
+                             <ul class="list-disc list-inside">
+                                 <li>Supervisionei operações logísticas, implementando 5S e crossdocking, o que resultou na redução de custos em 15%.</li>
+                                 <li>Gerenciei a compra de EPIs, garantindo qualidade e conformidade.</li>
+                                 <li>Fui reconhecido com um prêmio por promover a inclusão através de iniciativas em DDS.</li>
+                             </ul>
                         </div>
                     </div>
+
+                     <div class="card-clean">
+                        <h3 class="text-xl font-semibold mb-2 text-primary-blue">Localiza Hertz</h3>
+                        <p class="text-gray-500 text-sm mb-4">Janeiro/2017 – Setembro/2019</p>
+                         <div class="text-gray-700">
+                             <p class="mb-3 font-semibold">Assistente de Análise de Despesas – Key User</p>
+                             <ul class="list-disc list-inside">
+                                 <li>Atuei na administração de despesas e gerei relatórios que otimizaram negociações com fornecedores.</li>
+                                 <li>Colaborei no sistema SPOC, testando funcionalidades e conectando as áreas de negócio à TI.</li>
+                             </ul>
+                         </div>
+                     </div>
+
+                      <div class="card-clean">
+                         <h3 class="text-xl font-semibold mb-2 text-primary-blue">BB Hamburgueria & Franquias</h3>
+                         <p class="text-gray-500 text-sm mb-4">agosto de 2020 – setembro de 2021 (1 ano 2 meses)</p>
+                         <div class="text-gray-700">
+                            <p class="mb-3 font-semibold">Líder de operações (maio de 2021 - setembro de 2021)</p>
+                            <p class="mb-3 font-semibold">Líder de equipe (agosto de 2020 - maio de 2021)</p>
+                             </div>
+                      </div>
+
+                     <div class="card-clean">
+                         <h3 class="text-xl font-semibold mb-2 text-primary-blue">Sindicato Polícia Penal</h3>
+                         <p class="text-gray-500 text-sm mb-4">janeiro de 2015 - janeiro de 2016 (1 ano 1 mês)</p>
+                         <div class="text-gray-700">
+                            <p class="mb-3 font-semibold">Associado</p>
+                             </div>
+                      </div>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
+
+         <section id="education" class="py-16 mb-16 bg-gray-50">
+             <div class="container mx-auto px-4">
+                <h2>Formação Acadêmica & Cursos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card-clean">
+                        <h3 class="text-xl font-semibold mb-2 text-primary-blue">Formação Acadêmica</h3>
+                        <p class="text-gray-700 mb-2 font-semibold">Universidade FUMEC – Fundação Mineira de Educação e Cultura</p>
+                        <p class="text-gray-700 mb-2">Bacharelado em Gestão da Tecnologia da Informação | 2024 – Em andamento</p>
+                        <p class="text-gray-700 text-sm">(Transferência de Engenharia Civil - cursado até o 4º período)</p>
+                    </div>
+                     <div class="card-clean">
+                         <h3 class="text-xl font-semibold mb-2 text-primary-blue">Cursos Complementares</h3>
+                         <ul class="list-disc list-inside text-gray-700">
+                             <li>Microsoft Learn: Microsoft Fabric, Spark, Lakehouses (2024)</li>
+                             <li>Bureau Veritas: Gestão de Não Conformidades</li>
+                             <li>LEC: CPC-A, CPC-F (Compliance)</li>
+                         </ul>
+                     </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="contact" class="container mx-auto px-4 py-16">
+             <h2>Contato</h2>
+            <div class="card-clean max-w-3xl mx-auto text-center">
+                <p class="text-lg mb-6 text-gray-700">Vamos construir algo incrível juntos. Conecte-se:</p>
+                <p class="mb-3 text-lg">Email: <a href="mailto:magaiverbragasantana@gmail.com">magaiverbragasantana@gmail.com</a></p>
+                <p class="mb-3 text-lg">Telefone: (31) 99690-6701</p>
+                <p class="mb-6 text-lg">LinkedIn: <a href="https://www.linkedin.com/in/magaiver-santana-b21b6b169/" target="_blank">linkedin.com/in/magaiver-santana-b21b6b169</a></p>
+                <p class="text-lg">GitHub: <a href="https://github.com/MzMagaiver" target="_blank">github.com/MzMagaiver</a></p>
+                 <p class="text-lg">Portfólio Antigo: <a href="https://mzmagaiver.github.io/MagaiverBraga" target="_blank">mzmagaiver.github.io/MagaiverBraga</a></p>
+                </div>
+        </section>
+
     </main>
 
-    <footer class="py-4 text-center text-gray-400">
-        <p>© 2025 Magaiver Braga Santana. O Código nãp é o poder!.</p>
+    <footer class="py-12 text-center text-gray-600 bg-gray-200">
+        <p>© 2025 Magaiver Braga Santana. Todos os direitos reservados.</p>
+        <p class="text-sm mt-2 font-body">"O Código não é o poder!"</p>
     </footer>
 
-<div id="spaceship" style="
-    position: fixed;
-    width: 80px;
-    height: 80px;
-    background: url('spaceship.png') no-repeat center/contain;
-    z-index: 100;
-    pointer-events: none;
-"></div>
-
-    <div id="info-modal" class="modal">
+    <div id="modal-portfolio" class="modal">
         <div class="modal-content">
             <button class="close-button">&times;</button>
-            <div id="modal-body">
-                </div>
+            <h3 class="text-2xl font-semibold mb-4 text-gradient-clean">Portfólio Web</h3>
+            <p class="text-gray-500 text-sm mb-4 text-center">Projeto Pessoal</p>
+            <p class="text-gray-700">Este site foi desenvolvido usando HTML, CSS e JavaScript e está hospedado no GitHub Pages. Foi uma forma de aplicar meus conhecimentos fundamentais em front-end.</p>
+            <div class="text-center mt-6">
+                <a href="https://mzmagaiver.github.io/MagaiverBraga" target="_blank" class="btn-clean-primary inline-block no-underline">Ver Projeto</a>
+            </div>
         </div>
     </div>
 
-    <div id="instructions-modal" class="modal">
+    <div id="modal-github-repos" class="modal">
         <div class="modal-content">
-             <button class="close-button">&times;</button>
-            <h3>Jogo do Dev: Como Jogar</h3>
-            <p>Você é um desenvolvedor enfrentando o temido Mago do Bug! Ele lança erros de sintaxe contra você, e sua missão é corrigir o código antes que o tempo acabe.</p>
-            <h4>Instruções:</h4>
-            <ul class="text-left">
-                <li>Escolha um nível de dificuldade (Fácil, Médio ou Difícil).</li>
-                <li>Um trecho de código com erro será exibido.</li>
-                <li>Digite a correção no campo fornecido e pressione "Enviar" ou Enter.</li>
-                <li>Corrija o erro dentro do tempo limite para ganhar pontos!</li>
-                <li>Cada erro não corrigido custa uma vida. Perca todas as vidas e o jogo termina.</li>
-            </ul>
-            <h4>Exemplos de Respostas:</h4>
-            <ul class="text-left list-disc list-inside">
-                <li>Para o código `console.log("Hello World"`, a resposta correta pode ser `;` ou `);`.</li>
-                <li>Para o código `let array = [1, 2, 3`, a resposta correta pode ser `]` ou `];`.</li>
-                <li>Para o código `if (x = 5)`, a resposta correta pode ser `===` ou `==`.</li>
-            </ul>
+            <button class="close-button">&times;</button>
+            <h3 class="text-2xl font-semibold mb-4 text-gradient-clean">Repositórios GitHub</h3>
+             <p class="text-gray-500 text-sm mb-4 text-center">Projeto Pessoal</p>
+            <p class="text-gray-700">Meus repositórios incluem exercícios práticos em HTML, CSS e Supabase. Utilizo o Git para versionamento e para aprimorar minha lógica de programação.</p>
+             <div class="text-center mt-6">
+                 <a href="https://github.com/MzMagaiver" target="_blank" class="btn-clean-primary inline-block no-underline">Ver GitHub</a>
+             </div>
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.7.2/dist/vanilla-tilt.min.js"></script>
+
+     <div id="modal-mzm" class="modal">
+        <div class="modal-content">
+            <button class="close-button">&times;</button>
+            <h3 class="text-2xl font-semibold mb-4 text-gradient-clean">Método MZ-M: Modelagem Zen de Sistemas</h3>
+             <p class="text-gray-500 text-sm mb-4 text-center">Projeto Open Source</p>
+            <p class="text-gray-700">Desenvolvi uma abordagem para modelagem de lógica de negócio baseada em CUE, focada em clareza, solidez e rastreabilidade para desenvolvedores.</p>
+            <p class="text-gray-700">O projeto inclui a definição da gramática, ferramentas como linter e tradutor, além de documentação completa.</p>
+             <div class="text-center mt-6">
+                 <a href="https://mzmagaiver.github.io/mzm-method/" target="_blank" class="btn-clean-primary inline-block no-underline">Explorar Documentação</a>
+             </div>
+        </div>
+    </div>
+
+    <div id="modal-fornecedores" class="modal">
+        <div class="modal-content">
+            <button class="close-button">&times;</button>
+            <h3 class="text-2xl font-semibold mb-4 text-gradient-clean">Portal de Fornecedores</h3>
+            <p class="text-gray-500 text-sm mb-4 text-center">CIMCOP Engenharia</p>
+             <p class="text-gray-700">Idealizei e liderei a articulação do projeto do Portal de Fornecedores da empresa. Iniciamos de forma experimental com Microsoft 365, evoluindo para uma implementação maior com consultoria externa, focada na integração com o sistema ERP.</p>
+             <div class="text-center mt-6">
+                 <a href="#" class="text-blue-600 hover:underline no-underline">Leia Mais</a>
+             </div>
+        </div>
+     </div>
+
+      <div id="modal-ms365" class="modal">
+        <div class="modal-content">
+            <button class="close-button">&times;</button>
+            <h3 class="text-2xl font-semibold mb-4 text-gradient-clean">Automação com Microsoft 365</h3>
+            <p class="text-gray-500 text-sm mb-4 text-center">CIMCOP Engenharia</p>
+             <p class="text-gray-700">Implementei diversas automações e integrações de processos usando o pacote Microsoft 365 (Forms, Power Automate, Lists, Planner, Teams), reduzindo a dependência de e-mails e otimizando a gestão. Introduzi o uso de Forms para coleta de dados em obras, substituindo papel e integrando registros automaticamente.</p>
+             <div class="text-center mt-6">
+                 <a href="#" class="text-blue-600 hover:underline no-underline">Leia Mais</a>
+             </div>
+        </div>
+      </div>
+
+       <div id="modal-spoc" class="modal">
+        <div class="modal-content">
+            <button class="close-button">&times;</button>
+            <h3 class="text-2xl font-semibold mb-4 text-gradient-clean">Sistema SPOC</h3>
+            <p class="text-gray-500 text-sm mb-4 text-center">Localiza Hertz</p>
+            <p class="text-gray-700">Participei ativamente da criação do sistema SPOC na Localiza, atuando como usuário-chave na definição, testes e layout, garantindo a aderência às necessidades operacionais. Também fui multiplicador do sistema e ponte entre usuários e a equipe de TI Digital.</p>
+            <div class="text-center mt-6">
+                <a href="#" class="text-blue-600 hover:underline no-underline">Leia Mais</a>
+            </div>
+       </div>
+    </div>
+
 
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-    // --- Inicialização Geral ---
-    const loadingScreen = document.getElementById('loading-screen');
-    const infoModal = document.getElementById('info-modal');
-    const modalBody = document.getElementById('modal-body');
-    const closeModalButtons = document.querySelectorAll('.close-button');
-    const body = document.body; // Get the body element
+        document.addEventListener('DOMContentLoaded', () => {
+            const modalTriggers = document.querySelectorAll('[data-modal-target]');
+            const modals = document.querySelectorAll('.modal');
+            const closeModalButtons = document.querySelectorAll('.modal .close-button');
+            const body = document.body;
 
-
-    // Função para esconder a tela de carregamento
-    function hideLoadingScreen() {
-        if (loadingScreen) {
-            loadingScreen.classList.add('hidden');
-        }
-    }
-
-    // Timeout de fallback para garantir que a tela de carregamento desapareça
-    setTimeout(hideLoadingScreen, 5000); // Esconde após 5 segundos, mesmo que o 'load' não seja disparado
-
-    // Evento de carregamento com tratamento de erro
-    try {
-        window.addEventListener('load', () => {
-            hideLoadingScreen();
-        });
-
-        // Verifica falhas no carregamento de scripts externos
-        const scripts = document.querySelectorAll('script[src]');
-        scripts.forEach(script => {
-            script.addEventListener('error', () => {
-                console.warn(`Erro ao carregar script: ${script.src}`);
-                hideLoadingScreen(); // Esconde a tela de carregamento em caso de erro
-            });
-        });
-
-        // --- Efeito Tilt nos cards de navegação ---
-        const tiltElements = document.querySelectorAll('.tilt');
-        if (typeof VanillaTilt !== 'undefined') {
-            VanillaTilt.init(tiltElements, {
-                max: 15,
-                speed: 400,
-                glare: true,
-                "max-glare": 0.3
-            });
-        } else {
-            console.warn("VanillaTilt não carregado.");
-        }
-
-        // --- Navegação entre seções ---
-        const navCards = document.querySelectorAll('.nav-card');
-        const contentSections = document.querySelectorAll('.content-section');
-        const homeButton = document.getElementById('home-button');
-
-        function showSection(sectionId) {
-             // Reset game state when leaving the home/game section
-            if (getCurrentSectionId() === 'home' && sectionId !== 'home') {
-                 resetGame();
-            }
-
-            contentSections.forEach(section => {
-                section.classList.remove('active');
-            });
-            const activeSection = document.getElementById(sectionId);
-            if (activeSection) {
-                activeSection.classList.add('active');
-                const cards = activeSection.querySelectorAll('.fade-in');
-                cards.forEach((card, index) => {
-                    setTimeout(() => card.classList.add('visible'), index * 100);
+            modalTriggers.forEach(trigger => {
+                trigger.addEventListener('click', (event) => {
+                    event.preventDefault(); // Prevent default link behavior
+                    const targetId = trigger.getAttribute('data-modal-target');
+                    const modal = document.getElementById(targetId);
+                    if (modal) {
+                        modal.classList.add('active');
+                        body.classList.add('modal-open');
+                    }
                 });
-            }
-        }
-
-        function getCurrentSectionId() {
-            const activeSection = document.querySelector('.content-section.active');
-            return activeSection ? activeSection.id : null;
-        }
-
-
-        navCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const sectionId = card.getAttribute('data-section');
-                showSection(sectionId);
             });
-        });
 
-        if (homeButton) {
-            homeButton.addEventListener('click', () => {
-                showSection('home');
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const modal = button.closest('.modal');
+                    if (modal) {
+                        modal.classList.remove('active');
+                        body.classList.remove('modal-open');
+                    }
+                });
             });
-        }
 
-        // --- Abrir Modal com Conteúdo do Cyber Card ---
-        const cyberCards = document.querySelectorAll('.cyber-card:not([data-node="game"])');
-        cyberCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const cardTitle = card.querySelector('h3').outerHTML;
-                const cardContent = card.querySelector('.card-content').innerHTML;
+            modals.forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                         body.classList.remove('modal-open');
+                    }
+                });
+            });
 
-                if (modalBody) {
-                    modalBody.innerHTML = cardTitle + cardContent;
-                }
-                if (infoModal) {
-                    infoModal.classList.add('active');
-                    body.classList.add('modal-open'); // Add class to body
+            // Close modal with ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const activeModal = document.querySelector('.modal.active');
+                    if (activeModal) {
+                        activeModal.classList.remove('active');
+                        body.classList.remove('modal-open');
+                    }
                 }
             });
-        });
 
-        // --- Fechar Modais ---
-        closeModalButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (infoModal) {
-                    infoModal.classList.remove('active');
-                    body.classList.remove('modal-open'); // Remove class from body
-                }
-                const instructionsModal = document.getElementById('instructions-modal');
-                if (instructionsModal) {
-                    instructionsModal.classList.remove('active');
-                    body.classList.remove('modal-open'); // Remove class from body
-                }
-            });
-        });
+             // Smooth scrolling for anchor links
+             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                 anchor.addEventListener('click', function (e) {
+                     e.preventDefault();
 
-         // Close modal when clicking outside the modal content
-        if (infoModal) {
-             infoModal.addEventListener('click', (e) => {
-                if (e.target === infoModal) {
-                     infoModal.classList.remove('active');
-                     body.classList.remove('modal-open'); // Remove class from body
-                }
+                     document.querySelector(this.getAttribute('href')).scrollIntoView({
+                         behavior: 'smooth'
+                     });
+                 });
              });
-        }
-         const instructionsModal = document.getElementById('instructions-modal');
-         if (instructionsModal) {
-             instructionsModal.addEventListener('click', (e) => {
-                if (e.target === instructionsModal) {
-                     instructionsModal.classList.remove('active');
-                     body.classList.remove('modal-open'); // Remove class from body
-                }
-             });
-         }
-
-
-        // --- Lógica do Jogo ---
-        const gameState = {
-            lives: 3,
-            score: 0,
-            level: 1,
-            isPlaying: false,
-            timeLeft: 30,
-            timerInterval: null,
-            currentSnippet: null,
-            difficulty: 'medium',
-            codeSnippets: {
-                easy: [
-                    { wrong: 'console.log("Hello World"', correct: [';', ');'], hint: 'Falta o ponto e vírgula ou parêntese?' },
-                    { wrong: 'let array = [1, 2, 3', correct: [']', '];'], hint: 'Como finalizar um array?' },
-                    { wrong: 'function greet() {', correct: ['}'], hint: 'Como se fecha um bloco de função?' }
-                ],
-                medium: [
-                    { wrong: 'if (x = 5)', correct: ['===', '=='], hint: 'Comparação ou atribuição?' },
-                    { wrong: 'const name = "Dev";', correct: ['let name = "Dev";', 'var name = "Dev";'], hint: 'Pode ser redeclarada? Qual a forma correta?' }, // Updated correct answer
-                    { wrong: '<button onclick="myFunc>"', correct: ['myFunc()"', 'myFunc();"'], hint: 'Falta algo na chamada da função?' }
-                ],
-                hard: [
-                    { wrong: 'document.getElementById(myElement)', correct: ['"myElement"', "'myElement'"], hint: 'IDs são strings?' },
-                    { wrong: 'async function fetchData() {', correct: ['await', 'return await'], hint: 'Falta algo para chamadas assíncronas?' },
-                    { wrong: 'const obj = { name: "Dev" ', correct: ['}'], hint: 'Como fechar um objeto?' }
-                ]
-            }
-        };
-
-        // Elementos do DOM do Jogo
-        const gameElements = {
-            startBtn: document.getElementById('start-game'),
-            howToPlayBtn: document.getElementById('how-to-play'),
-            instructionsModal: document.getElementById('instructions-modal'),
-            closeInstructions: instructionsModal ? instructionsModal.querySelector('.close-button') : null, // Use the close button within the modal
-            difficultyMenu: document.getElementById('difficulty-menu'),
-            difficultyButtons: document.querySelectorAll('.difficulty-btn'),
-            gameScreen: document.getElementById('game-screen'),
-            gameStart: document.getElementById('game-start'),
-            gameOver: document.getElementById('game-over'),
-            restartGame: document.getElementById('restart-game'),
-            lives: document.getElementById('lives'),
-            score: document.getElementById('score'),
-            level: document.getElementById('level'),
-            timer: document.getElementById('timer'),
-            codeSnippet: document.getElementById('code-snippet'),
-            codeAnswer: document.getElementById('code-answer'),
-            submitAnswer: document.getElementById('submit-answer'),
-            projectilesContainer: document.getElementById('projectiles-container'),
-            // Updated character elements to use the image tags
-            playerCharacter: document.getElementById('dev-character-img'),
-            enemyCharacter: document.getElementById('bug-character-img'),
-            finalScore: document.getElementById('final-score'),
-            backToMenuBtn: document.getElementById('back-to-menu'), // New Back to Menu button
-            backToMenuGameoverBtn: document.getElementById('back-to-menu-gameover') // New Back to Menu button from Game Over
-        };
-
-        function createProjectile() {
-            if (!gameElements.projectilesContainer) return;
-
-            const projectile = document.createElement('div');
-            projectile.className = 'projectile';
-            gameElements.projectilesContainer.appendChild(projectile);
-
-            // Apply hit animation to the DEV image
-            if (gameElements.playerCharacter) {
-                gameElements.playerCharacter.classList.add('hit');
-                setTimeout(() => {
-                    if (gameElements.playerCharacter) gameElements.playerCharacter.classList.remove('hit');
-                }, 500);
-            }
-
-            projectile.addEventListener('animationend', () => {
-                projectile.remove();
-            });
-        }
-
-        function startTimer() {
-            gameState.timeLeft = gameState.difficulty === 'easy' ? 45 : gameState.difficulty === 'medium' ? 30 : 20;
-            updateTimerDisplay();
-
-            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-
-            gameState.timerInterval = setInterval(() => {
-                gameState.timeLeft--;
-                updateTimerDisplay();
-
-                if (gameState.timeLeft <= 0) {
-                    clearInterval(gameState.timerInterval);
-                    handleIncorrectAnswer(true);
-                }
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            if (gameElements.timer) {
-                gameElements.timer.textContent = gameState.timeLeft;
-            }
-        }
-
-        function handleCorrectAnswer() {
-            gameState.score += (gameState.difficulty === 'easy' ? 30 : gameState.difficulty === 'medium' ? 50 : 80) + (10 * gameState.level);
-            if (gameState.score > 0 && gameState.score % (150 + 30 * (gameState.level - 1)) === 0) {
-                gameState.level++;
-            }
-
-             // Apply defend animation to the DEV image
-            if (gameElements.playerCharacter) {
-                gameElements.playerCharacter.classList.add('defend');
-                setTimeout(() => {
-                    if (gameElements.playerCharacter) gameElements.playerCharacter.classList.remove('defend');
-                }, 300);
-            }
-
-            updateGameUI();
-            showNewSnippet();
-        }
-
-        function handleIncorrectAnswer(isTimeout = false) {
-            createProjectile();
-            gameState.lives--;
-            updateGameUI();
-
-            if (gameState.lives <= 0) {
-                endGame();
-            } else if (isTimeout) {
-                showNewSnippet();
-            }
-        }
-
-        function checkAnswer() {
-            if (!gameState.isPlaying || !gameState.currentSnippet) return;
-
-            const userAnswer = gameElements.codeAnswer.value.trim();
-            const correctOptions = gameState.currentSnippet.correct;
-
-            const isCorrect = correctOptions.some(option => userAnswer === option);
-
-            if (isCorrect) {
-                handleCorrectAnswer();
-            } else {
-                handleIncorrectAnswer();
-            }
-            if (gameElements.codeAnswer) gameElements.codeAnswer.value = '';
-        }
-
-        function showNewSnippet() {
-            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-
-            const snippets = gameState.codeSnippets[gameState.difficulty];
-            let randomIndex;
-            let attempts = 0;
-            do {
-                randomIndex = Math.floor(Math.random() * snippets.length);
-                attempts++;
-            } while (snippets[randomIndex] === gameState.currentSnippet && snippets.length > 1 && attempts < 10);
-
-            gameState.currentSnippet = snippets[randomIndex];
-
-            if (gameElements.codeSnippet) gameElements.codeSnippet.textContent = gameState.currentSnippet.wrong;
-            if (gameElements.codeAnswer) {
-                gameElements.codeAnswer.value = '';
-                gameElements.codeAnswer.placeholder = gameState.currentSnippet.hint || 'Digite a correção...';
-            }
-
-            startTimer();
-        }
-
-        function updateGameUI() {
-            if (gameElements.lives) gameElements.lives.textContent = gameState.lives;
-            if (gameElements.score) gameElements.score.textContent = gameState.score;
-            if (gameElements.level) gameElements.level.textContent = gameState.level;
-        }
-
-        function startGame() {
-            gameState.lives = gameState.difficulty === 'easy' ? 5 : gameState.difficulty === 'medium' ? 3 : 2;
-            gameState.score = 0;
-            gameState.level = 1;
-            gameState.isPlaying = true;
-            gameState.currentSnippet = null;
-            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-
-            updateGameUI();
-
-            if (gameElements.gameStart) gameElements.gameStart.classList.add('hidden');
-            if (gameElements.gameOver) gameElements.gameOver.classList.add('hidden');
-            if (gameElements.gameScreen) gameElements.gameScreen.classList.remove('hidden');
-            if (gameElements.difficultyMenu) gameElements.difficultyMenu.style.display = 'none';
-
-            // Show character images when game starts
-            if (gameElements.playerCharacter) gameElements.playerCharacter.style.display = 'block';
-            if (gameElements.enemyCharacter) gameElements.enemyCharacter.style.display = 'block';
-
-
-            showNewSnippet();
-
-            if (gameElements.codeAnswer) gameElements.codeAnswer.focus();
-        }
-
-        function endGame() {
-            gameState.isPlaying = false;
-            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-
-            if (gameElements.gameScreen) gameElements.gameScreen.classList.add('hidden');
-            if (gameElements.gameOver) gameElements.gameOver.classList.remove('hidden'); // Show game over screen
-            if (gameElements.finalScore) gameElements.finalScore.textContent = gameState.score;
-
-            // Hide character images when game ends
-            if (gameElements.playerCharacter) gameElements.playerCharacter.style.display = 'none';
-            if (gameElements.enemyCharacter) gameElements.enemyCharacter.style.display = 'none';
-        }
-
-         function resetGame() {
-            gameState.isPlaying = false;
-            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-            gameState.lives = 3; // Reset lives to default
-            gameState.score = 0; // Reset score
-            gameState.level = 1; // Reset level
-            gameState.currentSnippet = null; // Clear current snippet
-            gameState.timeLeft = 30; // Reset timer
-            gameState.difficulty = 'medium'; // Reset difficulty
-
-            if (gameElements.gameScreen) gameElements.gameScreen.classList.add('hidden');
-            if (gameElements.gameOver) gameElements.gameOver.classList.add('hidden');
-            if (gameElements.gameStart) gameElements.gameStart.classList.remove('hidden');
-             if (gameElements.difficultyMenu) gameElements.difficultyMenu.style.display = 'none'; // Hide difficulty menu on reset
-
-            // Hide character images when returning to menu
-            if (gameElements.playerCharacter) gameElements.playerCharacter.style.display = 'none';
-            if (gameElements.enemyCharacter) gameElements.enemyCharacter.style.display = 'none';
-
-
-            updateGameUI(); // Update UI to reflect reset state
-         }
-
-
-        // --- Event Listeners do Jogo ---
-        if (gameElements.startBtn) {
-            gameElements.startBtn.addEventListener('click', () => {
-                if (gameElements.difficultyMenu) gameElements.difficultyMenu.style.display = 'block';
-            });
-        }
-        if (gameElements.howToPlayBtn) {
-            gameElements.howToPlayBtn.addEventListener('click', () => {
-                const instructionsModal = document.getElementById('instructions-modal');
-                if (instructionsModal) {
-                    instructionsModal.classList.add('active');
-                    body.classList.add('modal-open'); // Add class to body
-                }
-            });
-        }
-        // Close instructions modal is handled by the general close button listener
-
-        gameElements.difficultyButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                gameState.difficulty = btn.getAttribute('data-difficulty');
-                startGame();
-            });
         });
-        if (gameElements.submitAnswer) {
-            gameElements.submitAnswer.addEventListener('click', checkAnswer);
-        }
-        if (gameElements.restartGame) {
-            gameElements.restartGame.addEventListener('click', () => {
-                if (gameElements.difficultyMenu) gameElements.difficultyMenu.style.display = 'block';
-                if (gameElements.gameOver) gameElements.gameOver.classList.add('hidden');
-            });
-        }
-        if (gameElements.codeAnswer) {
-            gameElements.codeAnswer.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    checkAnswer();
-                }
-            });
-        }
-         if (gameElements.backToMenuBtn) {
-             gameElements.backToMenuBtn.addEventListener('click', resetGame);
-         }
-         if (gameElements.backToMenuGameoverBtn) {
-             gameElements.backToMenuGameoverBtn.addEventListener('click', resetGame);
-         }
-
-
-        // --- Efeito de Partículas ---
-        const particlesCanvas = document.getElementById('particles');
-        if (typeof THREE !== 'undefined' && particlesCanvas) {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ canvas: particlesCanvas, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-
-            const particleCount = 5000;
-            const particles = new THREE.BufferGeometry();
-            const positions = new Float32Array(particleCount * 3);
-
-            for (let i = 0; i < particleCount * 3; i++) {
-                positions[i] = (Math.random() - 0.5) * 10;
-            }
-            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-            const particleMaterial = new THREE.PointsMaterial({
-                color: 0xff4d00,
-                size: 0.02,
-                transparent: true,
-                opacity: 0.6
-            });
-            const particleSystem = new THREE.Points(particles, particleMaterial);
-            scene.add(particleSystem);
-
-            camera.position.z = 5;
-
-            function animateParticles() {
-                requestAnimationFrame(animateParticles);
-                particleSystem.rotation.y += 0.0005;
-                const time = Date.now() * 0.0001;
-                camera.position.y = Math.sin(time * 0.5) * 0.1;
-
-                renderer.render(scene, camera);
-            }
-            animateParticles();
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        } else {
-            console.warn("Three.js não carregado ou canvas #particles não encontrado.");
-        }
-
-        // Inicializa a primeira seção visível (Home)
-        showSection('home');
-
-    } catch (error) {
-        console.error("Erro na inicialização do site:", error);
-        hideLoadingScreen(); // Garante que a tela de carregamento seja escondida mesmo em caso de erro
-    }
-}); // Fim do DOMContentLoaded
     </script>
 
-<script>
-// Adicione isso no final do arquivo, antes do </body>
-const spaceship = document.getElementById('spaceship');
-let posX = 0, posY = 0;
-
-function moveSpaceship() {
-    posX = Math.random() * window.innerWidth;
-    posY = Math.random() * window.innerHeight;
-
-    spaceship.style.left = `${posX}px`;
-    spaceship.style.top = `${posY}px`;
-
-    setTimeout(moveSpaceship, 3000 + Math.random() * 5000);
-}
-
-moveSpaceship();
-</script>
 </body>
 </html>
